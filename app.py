@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, conlist, field_validator
@@ -6,6 +5,8 @@ import joblib
 import numpy as np
 import pandas as pd
 import os
+import json
+from datetime import datetime, timezone
 
 # Load saved model and preprocessing files
 model = joblib.load("model/model.joblib")
@@ -44,13 +45,6 @@ def health_check():
 
 @app.post("/predict")
 def predict(data: WebsiteFeatures):
-
-    if len(data.values) != len(features):
-        raise HTTPException(
-            status_code=422,
-            detail=f"Expected {len(features)} features"
-        )
-
     input_data = pd.DataFrame(
         [data.values],
         columns=features
@@ -64,6 +58,17 @@ def predict(data: WebsiteFeatures):
         if prediction == -1
         else "Legitimate Website"
     )
+
+    # Log prediction inputs for drift monitoring
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "input_features": data.values,
+        "prediction": int(prediction),
+        "result": result
+    }
+
+    with open("prediction_logs.jsonl", "a") as log_file:
+        log_file.write(json.dumps(log_entry) + "\n")
 
     return {
         "prediction": int(prediction),
