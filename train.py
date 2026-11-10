@@ -121,7 +121,18 @@ def main():
                 )
             }
 
-            mlflow.log_param("model_name", name)
+                       mlflow.log_param("model_name", name)
+            mlflow.log_param("test_size", 0.20)
+            mlflow.log_param("random_state", 42)
+            mlflow.log_param("features_count", X_train.shape[1])
+
+            mlflow.log_metrics(metrics)
+
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                serialization_format="cloudpickle"
+            )
             mlflow.log_param("test_size", 0.20)
             mlflow.log_param("random_state", 42)
             mlflow.log_param("features_count", X_train.shape[1])
