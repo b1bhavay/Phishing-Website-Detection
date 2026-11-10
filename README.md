@@ -9,30 +9,31 @@ The system uses website features and a trained Machine Learning model to classif
 - **Phishing Website (-1)**
 - **Legitimate Website (1)**
 
-The project integrates Machine Learning, FastAPI, Docker, GitHub Actions and cloud deployment to build a production-style ML application.
+The project integrates Machine Learning, FastAPI, Docker, MLflow, GitHub Actions and cloud deployment to build a production-style ML application.
 
 ## 2. Problem Statement
 
 Phishing attacks are a major cybersecurity threat. Attackers create fraudulent websites to steal sensitive information such as passwords, banking credentials and personal details.
 
-The objective of this project is to develop a machine learning-based system that can classify websites using their extracted features and help users identify potentially malicious websites.
+The objective of this project is to develop a machine learning-based system that classifies websites using extracted features and helps identify potentially malicious websites.
 
 ## 3. Dataset Description
 
-**Dataset:** Phishing Websites Dataset
-
-**Source:** UCI Machine Learning Repository  
-**Dataset ID:** 327  
-**Link:** https://archive.ics.uci.edu/dataset/327/phishing+websites
+- **Dataset:** Phishing Websites Dataset
+- **Source:** UCI Machine Learning Repository
+- **Dataset ID:** 327
+- **Link:** https://archive.ics.uci.edu/dataset/327/phishing+websites
 
 Dataset details:
 
-- Total records: 11,055
-- Original input features: 30
-- Selected input features: 28
-- Target variable: `Result`
-- Missing values: 0
-- Feature values: -1, 0 and 1
+| Property | Value |
+|---|---:|
+| Total records | 11,055 |
+| Original input features | 30 |
+| Selected input features | 28 |
+| Target variable | `Result` |
+| Missing values | 0 |
+| Feature values | -1, 0, 1 |
 
 Target encoding:
 
@@ -52,7 +53,7 @@ The following preprocessing steps were performed:
 3. Correlation analysis.
 4. Feature selection.
 5. Removal of two selected features.
-6. Train-test splitting using stratification.
+6. Stratified train-test splitting.
 7. Feature scaling using StandardScaler.
 
 Dataset split:
@@ -63,23 +64,25 @@ Dataset split:
 | Testing | 2,211 |
 | Total | 11,055 |
 
-Final selected features: 28.
+Final selected features: **28**.
 
 ## 5. Machine Learning Algorithms
 
 Three machine learning algorithms were evaluated:
 
 - Logistic Regression
-- Random Forest Classifier
 - Decision Tree Classifier
+- Random Forest Classifier
 
 ### Model Performance
+
+The following results are from the latest verified training run using the project's `train.py` script.
 
 | Algorithm | Accuracy | Precision | Recall | F1-Score |
 |---|---:|---:|---:|---:|
 | Logistic Regression | 92.94% | 92.49% | 95.04% | 93.75% |
-| Random Forest | 95.79% | 94.87% | 97.73% | 96.28% |
-| Decision Tree | 94.66% | 95.43% | 94.96% | 95.20% |
+| Decision Tree | 96.92% | 96.86% | 97.64% | 97.25% |
+| Random Forest | **97.51%** | **97.12%** | **98.46%** | **97.78%** |
 
 ### Selected Model
 
@@ -87,7 +90,10 @@ Three machine learning algorithms were evaluated:
 
 Random Forest was selected because it achieved the highest accuracy and F1-score among the evaluated models.
 
-Final F1-score: **96.28%**
+- Accuracy: **97.51%**
+- Precision: **97.12%**
+- Recall: **98.46%**
+- F1-score: **97.78%**
 
 ## 6. MLflow Experiment Tracking
 
@@ -98,12 +104,15 @@ The following activities were performed:
 - Experiment creation.
 - Tracking multiple algorithm runs.
 - Logging model performance metrics.
-- Comparing different machine learning algorithms.
-- Selecting the best-performing model.
+- Comparing machine learning algorithms.
+- Selecting the best-performing model based on F1-score.
+- Saving trained models as MLflow artifacts.
 
-Experiment name: `Phishing-Website-Detection`
+**Experiment name:** `Phishing-Website-Detection`
 
-Tracking backend: SQLite.
+**Tracking backend:** SQLite
+
+Three algorithms were evaluated, and five total runs were recorded in the verified MLflow experiment history, including earlier repeated runs.
 
 ## 7. Technology Stack
 
@@ -126,14 +135,14 @@ Tracking backend: SQLite.
 
 The application provides:
 
-- A cybersecurity-themed web interface.
+- Cybersecurity-themed web interface.
 - Input of 28 website feature values.
 - Phishing and legitimate website classification.
 - Machine learning-based predictions.
 - Input validation using Pydantic.
 - Security recommendations after prediction.
 - Health monitoring endpoint.
-- Prediction input logging for drift monitoring.
+- Prediction input logging for future drift monitoring.
 
 **Note:** The current application accepts extracted feature values rather than directly scanning a website URL.
 
@@ -145,11 +154,19 @@ The application provides:
 | GET | `/health` | API health status |
 | POST | `/predict` | Website classification |
 
-### Prediction Input Format
+### Data Contract
 
-The API accepts a JSON object containing exactly 28 feature values.
+The prediction API accepts a JSON object containing exactly 28 numerical feature values.
 
-Example:
+| Property | Requirement |
+|---|---|
+| Request field | `values` |
+| Data type | Array of numbers |
+| Required length | Exactly 28 |
+| Allowed values | -1, 0, 1 |
+| Invalid input response | HTTP 422 |
+
+### Prediction Input Example
 
 ```json
 {
@@ -157,33 +174,80 @@ Example:
 }
 ```
 
-Allowed values: -1, 0 and 1.
+The API returns the predicted class and classification result.
 
-Invalid inputs are rejected with HTTP 422.
+## 10. Installation and Execution
 
-## 10. Docker and Cloud Deployment
+### Clone the Repository
+
+```bash
+git clone https://github.com/b1bhavay/Phishing-Website-Detection.git
+
+cd Phishing-Website-Detection
+```
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Train the Machine Learning Models
+
+```bash
+python train.py
+```
+
+This script trains three algorithms, logs experiment results using MLflow and saves the best-performing model.
+
+### Run the FastAPI Application
+
+```bash
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+Open the application:
+
+```text
+http://localhost:8000
+```
+
+Interactive API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+Health endpoint:
+
+```text
+http://localhost:8000/health
+```
+
+## 11. Docker and Cloud Deployment
 
 The application was containerized using Docker.
 
-Base image: `python:3.11-slim`
+- **Base image:** `python:3.11-slim`
+- **Serving dependencies:** `requirements-serve.txt`
+- **Application server:** Uvicorn
+- **Cloud platform:** Render
 
-The Dockerfile installs serving dependencies and runs the FastAPI application using Uvicorn.
+The Dockerfile installs serving dependencies and runs the FastAPI application.
 
-Cloud platform: Render
-
-**Live Application:**
+### Live Application
 
 https://phishing-website-detection-g2rx.onrender.com
 
-Health endpoint:
+### Health Endpoint
 
 https://phishing-website-detection-g2rx.onrender.com/health
 
 The deployed application was tested successfully with a phishing prediction.
 
-## 11. Continuous Integration
+## 12. Continuous Integration
 
-GitHub Actions was configured to automate testing.
+GitHub Actions was configured to automate model training and testing.
 
 The workflow runs when code is pushed to the main branch or a pull request is created.
 
@@ -192,11 +256,12 @@ CI workflow activities:
 1. Checkout repository.
 2. Set up Python 3.11.
 3. Install project dependencies.
-4. Execute automated tests using Pytest.
+4. Train machine learning models using `train.py`.
+5. Execute automated tests using Pytest.
 
-The GitHub Actions workflow completed successfully with a green status.
+**Latest verified status:** GitHub Actions workflow completed successfully with a green status.
 
-## 12. Automated Testing
+## 13. Automated Testing
 
 Four automated tests were implemented:
 
@@ -207,7 +272,9 @@ Four automated tests were implemented:
 
 The tests verify API functionality and input validation.
 
-## 13. Prediction Logging
+**Verified result:** All four tests passed in the local Colab test run.
+
+## 14. Prediction Logging
 
 The application records prediction information in a JSON Lines file named `prediction_logs.jsonl`.
 
@@ -222,7 +289,7 @@ These logs can support future data drift monitoring.
 
 **Storage note:** The current Render Free instance uses local filesystem logging, which is not persistent across instance restarts.
 
-## 14. Project Structure
+## 15. Project Structure
 
 ```text
 Phishing-Website-Detection/
@@ -246,13 +313,15 @@ Phishing-Website-Detection/
 │       └── ci.yml
 │
 ├── app.py
+├── train.py
 ├── Dockerfile
 ├── requirements.txt
 ├── requirements-serve.txt
-└── .gitignore
+├── .gitignore
+└── README.md
 ```
 
-## 15. Team Members
+## 16. Team Members
 
 | Name | Roll Number |
 |---|---|
@@ -260,7 +329,7 @@ Phishing-Website-Detection/
 | Aditya Mehta | 24CSU009 |
 | Anish Sehrawat | 24CSU017 |
 
-## 16. Future Enhancements
+## 17. Future Enhancements
 
 - Direct website URL scanning.
 - Real-time feature extraction.
@@ -270,10 +339,10 @@ Phishing-Website-Detection/
 - Model retraining and monitoring.
 - Improved dashboard and visualization.
 
-## 17. Conclusion
+## 18. Conclusion
 
 The project demonstrates how Machine Learning can be integrated with modern software engineering and deployment technologies to build a practical cybersecurity application.
 
-The Random Forest model achieved an F1-score of 96.28%. FastAPI provides prediction services, Docker supports containerization, GitHub Actions automates testing, and Render provides cloud deployment.
+The Random Forest model achieved an F1-score of **97.78%** in the latest verified training run. FastAPI provides prediction services, MLflow supports experiment tracking, Docker supports containerization, GitHub Actions automates model training and testing, and Render provides cloud deployment.
 
 The project provides a foundation for developing more advanced phishing detection systems.
