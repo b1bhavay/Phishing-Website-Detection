@@ -126,10 +126,11 @@ def main():
             mlflow.log_param("random_state", 42)
             mlflow.log_param("features_count", X_train.shape[1])
             mlflow.log_metrics(metrics)
-            mlflow.sklearn.log_model(
-                model,
-                artifact_path="model"
-            )
+           mlflow.sklearn.log_model(
+    model,
+    artifact_path="model",
+    serialization_format="cloudpickle"
+)
 
             print(f"\n{name}")
             for metric, value in metrics.items():
