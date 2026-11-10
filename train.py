@@ -20,18 +20,22 @@ from sklearn.metrics import (
 
 
 def main():
+
+    # Command-line arguments
     parser = argparse.ArgumentParser(
-        description="Train and compare phishing detection models"
+        description="Phishing Website Detection Model Training"
     )
 
     parser.add_argument(
         "--data",
         default="data/Phishing_Websites_Data.csv"
     )
+
     parser.add_argument(
         "--tracking-uri",
         default="sqlite:///mlflow.db"
     )
+
     parser.add_argument(
         "--experiment-name",
         default="Phishing-Website-Detection"
@@ -40,6 +44,8 @@ def main():
     args = parser.parse_args()
 
     # 1. Load dataset
+    print("Loading dataset...")
+
     df = pd.read_csv(args.data)
     df.columns = df.columns.str.strip()
 
@@ -49,23 +55,31 @@ def main():
     )
 
     if target_col is None:
-        raise ValueError("Target column 'Result' not found.")
+        raise ValueError("Target column Result not found!")
 
     # 2. Separate features and target
     X = df.drop(columns=[target_col])
     y = df[target_col]
 
-    # 3. Feature selection (same as project notebook)
+    # 3. Feature selection
     features_to_remove = [
         "favicon",
         "double_slash_redirecting"
     ]
 
-    missing = [f for f in features_to_remove if f not in X.columns]
-    if missing:
-        raise ValueError(f"Expected feature columns not found: {missing}")
+    missing_features = [
+        feature for feature in features_to_remove
+        if feature not in X.columns
+    ]
+
+    if missing_features:
+        raise ValueError(
+            f"Missing expected columns: {missing_features}"
+        )
 
     X = X.drop(columns=features_to_remove)
+
+    print("Selected features:", X.shape[1])
 
     # 4. Train-test split
     X_train, X_test, y_train, y_test = train_test_split(
@@ -76,92 +90,131 @@ def main():
         stratify=y
     )
 
+    print("Training data:", X_train.shape)
+    print("Testing data:", X_test.shape)
+
     # 5. Feature scaling
     scaler = StandardScaler()
+
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # 6. Models to compare
+    # 6. Define models
     models = {
         "Logistic Regression": LogisticRegression(
             max_iter=1000,
             random_state=42
         ),
+
         "Decision Tree": DecisionTreeClassifier(
             random_state=42
         ),
+
         "Random Forest": RandomForestClassifier(
             random_state=42
         )
     }
 
-    # 7. MLflow setup
+    # 7. MLflow configuration
     mlflow.set_tracking_uri(args.tracking_uri)
+
     mlflow.set_experiment(args.experiment_name)
 
     best_f1 = -1
     best_model = None
     best_name = None
 
+    # 8. Train and evaluate models
     for name, model in models.items():
+
         with mlflow.start_run(run_name=name):
+
+            print(f"\nTraining {name}...")
+
             model.fit(X_train_scaled, y_train)
+
             predictions = model.predict(X_test_scaled)
 
             metrics = {
-                "accuracy": accuracy_score(y_test, predictions),
+                "accuracy": accuracy_score(
+                    y_test, predictions
+                ),
+
                 "precision": precision_score(
                     y_test, predictions, pos_label=1
                 ),
+
                 "recall": recall_score(
                     y_test, predictions, pos_label=1
                 ),
+
                 "f1_score": f1_score(
                     y_test, predictions, pos_label=1
                 )
             }
 
-                       mlflow.log_param("model_name", name)
+            # Log parameters
+            mlflow.log_param("model_name", name)
             mlflow.log_param("test_size", 0.20)
             mlflow.log_param("random_state", 42)
-            mlflow.log_param("features_count", X_train.shape[1])
+            mlflow.log_param(
+                "features_count",
+                X_train.shape[1]
+            )
 
+            # Log evaluation metrics
             mlflow.log_metrics(metrics)
 
+            # Log model using cloudpickle serialization
             mlflow.sklearn.log_model(
                 sk_model=model,
-                artifact_path="model",
+                name="model",
                 serialization_format="cloudpickle"
             )
-            mlflow.log_param("test_size", 0.20)
-            mlflow.log_param("random_state", 42)
-            mlflow.log_param("features_count", X_train.shape[1])
-            mlflow.log_metrics(metrics)
-           mlflow.sklearn.log_model(
-    model,
-    artifact_path="model",
-    serialization_format="cloudpickle"
-)
 
-            print(f"\n{name}")
+            # Display results
+            print(f"\n{name} Results:")
+
             for metric, value in metrics.items():
                 print(f"{metric}: {value:.4f}")
 
+            # Select best model using F1-score
             if metrics["f1_score"] > best_f1:
+
                 best_f1 = metrics["f1_score"]
                 best_model = model
                 best_name = name
 
-    # 8. Save best model and preprocessing files
+    # 9. Save best model and preprocessing files
     os.makedirs("model", exist_ok=True)
 
-    joblib.dump(best_model, "model/model.joblib")
-    joblib.dump(scaler, "model/scaler.joblib")
-    joblib.dump(list(X.columns), "model/features.joblib")
+    joblib.dump(
+        best_model,
+        "model/model.joblib"
+    )
 
-    print("\nBest model:", best_name)
+    joblib.dump(
+        scaler,
+        "model/scaler.joblib"
+    )
+
+    joblib.dump(
+        list(X.columns),
+        "model/features.joblib"
+    )
+
+    # 10. Final output
+    print("\n" + "=" * 45)
+    print("TRAINING COMPLETED SUCCESSFULLY")
+    print("=" * 45)
+
+    print("Best Model:", best_name)
     print(f"Best F1-score: {best_f1:.4f}")
-    print("Model and preprocessing files saved successfully.")
+
+    print("\nModel files saved:")
+    print("model/model.joblib")
+    print("model/scaler.joblib")
+    print("model/features.joblib")
 
 
 if __name__ == "__main__":
