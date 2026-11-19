@@ -2,281 +2,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Phishing Website Detection</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phishing Website Detection</title>
 
-    <style>
-        * { box-sizing: border-box; }
+<style>
+* { box-sizing: border-box; }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            padding: 35px 18px;
-            font-family: Arial, sans-serif;
-            color: #f8fafc;
-            background:
-                radial-gradient(circle at top left, #12345a, transparent 40%),
-                linear-gradient(135deg, #080f1e, #101c32 55%, #08111f);
-        }
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 35px 18px;
+    font-family: Arial, sans-serif;
+    color: #f8fafc;
+    background:
+        radial-gradient(circle at top left, #12345a, transparent 40%),
+        linear-gradient(135deg, #080f1e, #101c32 55%, #08111f);
+}
 
-        .container {
-            max-width: 850px;
-            margin: 25px auto;
-            padding: 38px;
-            border: 1px solid rgba(148,163,184,.2);
-            border-radius: 22px;
-            background: rgba(23,35,56,.94);
-            box-shadow: 0 20px 60px rgba(0,0,0,.35);
-        }
+.container {
+    max-width: 850px;
+    margin: 25px auto;
+    padding: 38px;
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: 22px;
+    background: rgba(23,35,56,.94);
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+}
 
-        .header { text-align: center; margin-bottom: 35px; }
-        .shield { font-size: 42px; margin-bottom: 10px; }
+.header { text-align: center; margin-bottom: 35px; }
+.shield { font-size: 42px; margin-bottom: 10px; }
+h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
 
-        h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
+.subtitle, .description {
+    color: #94a3b8;
+    line-height: 1.6;
+}
 
-        .subtitle {
-            color: #cbd5e1;
-            font-size: 16px;
-            line-height: 1.6;
-        }
+.section-title { font-size: 21px; }
 
-        .section-title { font-size: 21px; margin-bottom: 10px; }
+.guidance {
+    margin: 15px 0;
+    padding: 14px;
+    background: rgba(2,132,199,.10);
+    border: 1px solid rgba(56,189,248,.2);
+    border-radius: 10px;
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.7;
+}
 
-        .description {
-            color: #94a3b8;
-            font-size: 14px;
-            line-height: 1.6;
-        }
+.counter-card, .history-card {
+    background: #0f1b2e;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 18px 0;
+}
 
-        .counter-card {
-            background: #0f1b2e;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 16px;
-            margin: 18px 0;
-        }
+.counter-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
 
-        .counter-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
+#counter { color: #38bdf8; font-weight: bold; }
+#counter.complete { color: #4ade80; }
 
-        #counter {
-            font-size: 20px;
-            font-weight: bold;
-            color: #38bdf8;
-        }
+.progress-track {
+    width: 100%;
+    height: 10px;
+    background: #334155;
+    border-radius: 20px;
+    overflow: hidden;
+}
 
-        #counter.complete { color: #4ade80; }
+#progress {
+    width: 0%;
+    height: 100%;
+    background: #0284c7;
+    border-radius: 20px;
+    transition: width .25s ease;
+}
 
-        .progress-track {
-            width: 100%;
-            height: 10px;
-            background: #334155;
-            border-radius: 20px;
-            overflow: hidden;
-        }
+#progress.complete { background: #22c55e; }
 
-        #progress {
-            width: 0%;
-            height: 100%;
-            background: #0284c7;
-            border-radius: 20px;
-            transition: width .25s ease, background .25s ease;
-        }
+#inputStatus {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #94a3b8;
+}
 
-        #progress.complete { background: #22c55e; }
+.valid { color: #4ade80 !important; }
+.invalid { color: #f87171 !important; }
 
-        #inputStatus {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #94a3b8;
-        }
+textarea {
+    width: 100%;
+    height: 190px;
+    resize: vertical;
+    padding: 18px;
+    border: 1px solid #475569;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 15px;
+    font-family: monospace;
+    outline: none;
+}
 
-        #inputStatus.valid { color: #4ade80; }
-        #inputStatus.invalid { color: #f87171; }
+textarea:focus {
+    border: 2px solid #38bdf8;
+    box-shadow: 0 0 0 4px rgba(56,189,248,.15);
+}
 
-        .guidance {
-            margin: 15px 0;
-            padding: 14px;
-            background: rgba(2,132,199,.10);
-            border: 1px solid rgba(56,189,248,.2);
-            border-radius: 10px;
-            color: #cbd5e1;
-            font-size: 14px;
-            line-height: 1.7;
-        }
+button {
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg,#0284c7,#2563eb);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
-        textarea {
-            width: 100%;
-            height: 190px;
-            resize: vertical;
-            padding: 18px;
-            border: 1px solid #475569;
-            border-radius: 12px;
-            background: #f8fafc;
-            color: #0f172a;
-            font-size: 15px;
-            font-family: monospace;
-            outline: none;
-        }
+button:disabled { opacity: .6; cursor: not-allowed; }
 
-        textarea:focus {
-            border: 2px solid #38bdf8;
-            box-shadow: 0 0 0 4px rgba(56,189,248,.15);
-        }
+.detect-btn { width: 100%; margin-top: 18px; }
 
-        button {
-            width: 100%;
-            padding: 16px;
-            margin-top: 18px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(90deg,#0284c7,#2563eb);
-            color: white;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: .2s;
-        }
+#result {
+    display: none;
+    margin-top: 25px;
+    padding: 22px;
+    border-radius: 14px;
+    text-align: center;
+    background: #0f1b2e;
+    border: 1px solid #334155;
+}
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(2,132,199,.3);
-        }
+#result.show { display: block; }
+#result.error { border-color: #ef4444; color: #fca5a5; }
+#result.success { border-color: #22c55e; color: #86efac; }
+#result.info { border-color: #38bdf8; color: #7dd3fc; }
 
-        button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-            transform: none;
-        }
+.recommendations {
+    margin-top: 18px;
+    padding: 15px;
+    border-radius: 10px;
+    background: #172338;
+    text-align: left;
+    color: #e2e8f0;
+}
 
-        #result {
-            display: none;
-            margin-top: 25px;
-            padding: 22px;
-            border-radius: 14px;
-            text-align: center;
-            background: #0f1b2e;
-            border: 1px solid #334155;
-        }
+.recommendations h3 {
+    color: #38bdf8;
+    text-align: center;
+}
 
-        #result.show { display: block; }
-        #result h2 { margin-top: 0; font-size: 25px; }
-        #result.error { border-color: #ef4444; color: #fca5a5; }
-        #result.success { border-color: #22c55e; color: #86efac; }
-        #result.info { border-color: #38bdf8; color: #7dd3fc; }
+.recommendations li { margin: 10px 0; line-height: 1.5; }
 
-        .recommendations {
-            margin-top: 18px;
-            padding: 15px;
-            border-radius: 10px;
-            background: #172338;
-            text-align: left;
-            color: #e2e8f0;
-        }
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 
-        .recommendations h3 {
-            color: #38bdf8;
-            text-align: center;
-        }
+.history-header h2 { color: #38bdf8; font-size: 21px; }
 
-        .recommendations li { margin: 10px 0; line-height: 1.5; }
+.clear-btn {
+    background: #991b1b;
+    padding: 10px 14px;
+}
 
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #64748b;
-            font-size: 12px;
-        }
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 4px;
+    border-bottom: 1px solid #334155;
+}
 
-        @media(max-width:600px) {
-            body { padding: 12px; }
-            .container { padding: 22px 16px; margin: 12px auto; }
-            h1 { font-size: 26px; }
-            textarea { height: 160px; }
-            .counter-top { align-items: flex-start; }
-        }
-    </style>
+.history-item:last-child { border-bottom: none; }
+
+.history-result { font-weight: bold; }
+.history-date { color: #94a3b8; font-size: 12px; margin-top: 5px; }
+.phishing { color: #f87171; }
+.legitimate { color: #4ade80; }
+
+.empty-history {
+    color: #94a3b8;
+    text-align: center;
+    padding: 18px 0;
+}
+
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+}
+
+@media(max-width:600px) {
+    body { padding: 12px; }
+    .container { padding: 22px 16px; }
+    h1 { font-size: 26px; }
+    textarea { height: 160px; }
+}
+</style>
 </head>
 
 <body>
 <div class="container">
 
-    <div class="header">
-        <div class="shield">🛡️</div>
-        <h1>Phishing Website Detection</h1>
-        <p class="subtitle">
-            Machine Learning Based Website Security Scanner
-        </p>
+<div class="header">
+    <div class="shield">🛡️</div>
+    <h1>Phishing Website Detection</h1>
+    <p class="subtitle">Machine Learning Based Website Security Scanner</p>
+</div>
+
+<h2 class="section-title">Website Security Analysis</h2>
+
+<p class="description">
+    Enter exactly 28 comma-separated website feature values.
+</p>
+
+<div class="guidance">
+    <strong>Input Guidelines</strong><br>
+    Allowed values: -1, 0 and 1<br>
+    Separate each value using a comma.<br>
+    Total required features: 28
+</div>
+
+<div class="counter-card">
+    <div class="counter-top">
+        <strong>Feature Input Progress</strong>
+        <span id="counter">0 / 28</span>
     </div>
-
-    <h2 class="section-title">Website Security Analysis</h2>
-
-    <p class="description">
-        Enter exactly 28 comma-separated website feature values.
-    </p>
-
-    <div class="guidance">
-        <strong>Input Guidelines</strong><br>
-        Allowed values: -1, 0 and 1<br>
-        Separate each value using a comma.<br>
-        Total required features: 28
+    <div class="progress-track">
+        <div id="progress"></div>
     </div>
+    <div id="inputStatus">Enter your 28 feature values to begin.</div>
+</div>
 
-    <div class="counter-card">
-        <div class="counter-top">
-            <strong>Feature Input Progress</strong>
-            <span id="counter">0 / 28</span>
-        </div>
+<textarea
+    id="features"
+    placeholder="Example: 1, -1, 0, 1, ..."
+    oninput="updateCounter()"
+></textarea>
 
-        <div class="progress-track">
-            <div id="progress"></div>
-        </div>
+<button class="detect-btn" id="detectBtn" onclick="detectWebsite()">
+    🛡️ Detect Phishing
+</button>
 
-        <div id="inputStatus">
-            Enter your 28 feature values to begin.
-        </div>
+<div id="result" aria-live="polite"></div>
+
+<!-- Prediction History -->
+<div class="history-card">
+    <div class="history-header">
+        <h2>📊 Prediction History</h2>
+        <button class="clear-btn" onclick="clearHistory()">
+            Clear History
+        </button>
     </div>
+    <div id="historyList"></div>
+</div>
 
-    <textarea
-        id="features"
-        placeholder="Example: 1, -1, 0, 1, ..."
-        oninput="updateCounter()"
-    ></textarea>
-
-    <button id="detectBtn" onclick="detectWebsite()">
-        🛡️ Detect Phishing
-    </button>
-
-    <div id="result" aria-live="polite"></div>
-
-    <div class="footer">
-        Machine Learning Based Phishing Detection System
-    </div>
+<div class="footer">
+    Machine Learning Based Phishing Detection System
+</div>
 
 </div>
 
 <script>
+const HISTORY_KEY = "phishingPredictionHistory";
+
 function getInputDetails() {
     const input = document.getElementById("features").value.trim();
 
-    if (input === "") {
+    if (!input) {
         return { count: 0, valid: false, empty: true };
     }
 
     const tokens = input.split(",").map(x => x.trim());
 
-    const valid = tokens.length === 28 &&
-        tokens.every(x => ["-1", "0", "1"].includes(x));
-
     return {
         count: tokens.length,
-        valid: valid,
+        valid: tokens.length === 28 &&
+            tokens.every(x => ["-1", "0", "1"].includes(x)),
         empty: false
     };
 }
@@ -290,8 +305,8 @@ function updateCounter() {
 
     counter.innerText = `${details.count} / 28`;
 
-    const percentage = Math.min((details.count / 28) * 100, 100);
-    progress.style.width = percentage + "%";
+    progress.style.width =
+        Math.min(details.count / 28 * 100, 100) + "%";
 
     counter.classList.remove("complete");
     progress.classList.remove("complete");
@@ -304,8 +319,7 @@ function updateCounter() {
             `You have entered ${details.count} values. Exactly 28 are required.`;
         status.className = "invalid";
     } else if (!details.valid) {
-        status.innerText =
-            "Invalid input. Use only -1, 0 and 1.";
+        status.innerText = "Invalid input. Use only -1, 0 and 1.";
         status.className = "invalid";
     } else {
         counter.classList.add("complete");
@@ -315,16 +329,109 @@ function updateCounter() {
     }
 }
 
-async function detectWebsite() {
-
-    const input = document.getElementById("features").value.trim();
+function showMessage(message, type) {
     const result = document.getElementById("result");
+    result.replaceChildren();
+
+    const heading = document.createElement("h2");
+    heading.textContent = message;
+
+    result.appendChild(heading);
+    result.className = "show " + type;
+}
+
+function savePrediction(prediction) {
+    try {
+        const history = JSON.parse(
+            localStorage.getItem(HISTORY_KEY) || "[]"
+        );
+
+        history.unshift({
+            result: prediction,
+            date: new Date().toISOString()
+        });
+
+        localStorage.setItem(
+            HISTORY_KEY,
+            JSON.stringify(history.slice(0, 10))
+        );
+
+        renderHistory();
+    } catch (error) {
+        console.warn("Could not save prediction history.", error);
+    }
+}
+
+function renderHistory() {
+    const historyList = document.getElementById("historyList");
+    historyList.replaceChildren();
+
+    let history = [];
+
+    try {
+        history = JSON.parse(
+            localStorage.getItem(HISTORY_KEY) || "[]"
+        );
+    } catch (error) {
+        history = [];
+    }
+
+    if (!Array.isArray(history) || history.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-history";
+        empty.textContent = "No predictions yet. Your results will appear here.";
+        historyList.appendChild(empty);
+        return;
+    }
+
+    history.slice(0, 10).forEach(item => {
+        const row = document.createElement("div");
+        row.className = "history-item";
+
+        const details = document.createElement("div");
+
+        const label = document.createElement("div");
+        label.className = "history-result";
+
+        const normalized = String(item.result || "").toLowerCase();
+
+        if (normalized.includes("phishing")) {
+            label.classList.add("phishing");
+        } else if (normalized.includes("legitimate")) {
+            label.classList.add("legitimate");
+        }
+
+        label.textContent = item.result || "Prediction completed";
+
+        const date = document.createElement("div");
+        date.className = "history-date";
+
+        const parsedDate = new Date(item.date);
+        date.textContent = isNaN(parsedDate.getTime())
+            ? "Date unavailable"
+            : parsedDate.toLocaleString();
+
+        details.appendChild(label);
+        details.appendChild(date);
+        row.appendChild(details);
+        historyList.appendChild(row);
+    });
+}
+
+function clearHistory() {
+    if (!confirm("Are you sure you want to clear prediction history?")) {
+        return;
+    }
+
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+}
+
+async function detectWebsite() {
+    const input = document.getElementById("features").value.trim();
     const button = document.getElementById("detectBtn");
 
-    result.innerHTML = "";
-    result.className = "show";
-
-    if (input === "") {
+    if (!input) {
         showMessage("Error: Please enter the 28 feature values.", "error");
         return;
     }
@@ -353,6 +460,7 @@ async function detectWebsite() {
 
     button.disabled = true;
     button.innerText = "⏳ Analyzing...";
+
     showMessage("Analyzing website features...", "info");
 
     try {
@@ -372,10 +480,15 @@ async function detectWebsite() {
             );
         }
 
-        result.innerHTML = "";
+        const prediction = String(data.result || "Prediction completed");
+
+        savePrediction(prediction);
+
+        const result = document.getElementById("result");
+        result.replaceChildren();
 
         const heading = document.createElement("h2");
-        heading.textContent = data.result || "Prediction completed";
+        heading.textContent = prediction;
         result.appendChild(heading);
 
         const box = document.createElement("div");
@@ -410,19 +523,8 @@ async function detectWebsite() {
     }
 }
 
-function showMessage(message, type) {
-    const result = document.getElementById("result");
-    result.innerHTML = "";
-
-    const heading = document.createElement("h2");
-    heading.textContent = message;
-
-    result.appendChild(heading);
-    result.className = "show " + type;
-}
-
 updateCounter();
+renderHistory();
 </script>
-
 </body>
 </html>
