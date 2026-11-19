@@ -30,18 +30,10 @@ body {
     box-shadow: 0 20px 60px rgba(0,0,0,.35);
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
+.header { text-align: center; margin-bottom: 30px; }
 .shield { font-size: 44px; }
 
-h1 {
-    color: #38bdf8;
-    font-size: 34px;
-    margin: 8px 0;
-}
+h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
 
 .subtitle, .description {
     color: #94a3b8;
@@ -50,18 +42,15 @@ h1 {
 
 .section-title { font-size: 21px; }
 
-.dashboard {
-    margin: 25px 0;
+.dashboard, .url-scanner, .counter-card, .history-card {
+    margin: 20px 0;
     padding: 20px;
     background: #0f1b2e;
     border: 1px solid #334155;
     border-radius: 14px;
 }
 
-.dashboard h2 {
-    color: #38bdf8;
-    margin-top: 0;
-}
+.dashboard h2, .url-scanner h2 { color: #38bdf8; margin-top: 0; }
 
 .dashboard-grid {
     display: grid;
@@ -76,18 +65,8 @@ h1 {
     padding: 18px;
 }
 
-.dashboard-label {
-    color: #94a3b8;
-    font-size: 13px;
-    margin-bottom: 10px;
-}
-
-.dashboard-number {
-    font-size: 28px;
-    font-weight: bold;
-    color: #38bdf8;
-}
-
+.dashboard-label { color: #94a3b8; font-size: 13px; margin-bottom: 10px; }
+.dashboard-number { font-size: 28px; font-weight: bold; color: #38bdf8; }
 .dashboard-number.danger { color: #f87171; }
 .dashboard-number.safe { color: #4ade80; }
 
@@ -102,28 +81,16 @@ h1 {
     line-height: 1.7;
 }
 
-.counter-card, .history-card {
-    background: #0f1b2e;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 18px 0;
-}
-
 .counter-top {
     display: flex;
     justify-content: space-between;
     margin-bottom: 12px;
 }
 
-#counter {
-    color: #38bdf8;
-    font-weight: bold;
-}
-
+#counter { color: #38bdf8; font-weight: bold; }
 #counter.complete { color: #4ade80; }
 
-.progress-track {
+.progress-track, .probability-track {
     width: 100%;
     height: 10px;
     background: #334155;
@@ -135,36 +102,33 @@ h1 {
     width: 0%;
     height: 100%;
     background: #0284c7;
-    border-radius: 20px;
     transition: width .25s ease;
 }
 
 #progress.complete { background: #22c55e; }
 
-#inputStatus {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #94a3b8;
-}
-
+#inputStatus { margin-top: 10px; font-size: 13px; color: #94a3b8; }
 .valid { color: #4ade80 !important; }
 .invalid { color: #f87171 !important; }
 
-textarea {
+textarea, .url-input {
     width: 100%;
-    height: 190px;
-    resize: vertical;
-    padding: 18px;
+    padding: 16px;
     border: 1px solid #475569;
     border-radius: 12px;
     background: #f8fafc;
     color: #0f172a;
     font-size: 15px;
-    font-family: monospace;
     outline: none;
 }
 
-textarea:focus {
+textarea {
+    height: 190px;
+    resize: vertical;
+    font-family: monospace;
+}
+
+textarea:focus, .url-input:focus {
     border: 2px solid #38bdf8;
     box-shadow: 0 0 0 4px rgba(56,189,248,.15);
 }
@@ -180,30 +144,35 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
+button:disabled { opacity: .6; cursor: not-allowed; }
 
-.detect-btn {
+.detect-btn, .url-scan-btn {
     width: 100%;
-    margin-top: 18px;
+    margin-top: 15px;
 }
 
-#result {
+.model-note {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+}
+
+#result, #urlResult {
     display: none;
-    margin-top: 25px;
-    padding: 22px;
+    margin-top: 22px;
+    padding: 20px;
     border-radius: 14px;
     text-align: center;
     background: #0f1b2e;
     border: 1px solid #334155;
+    overflow-wrap: anywhere;
 }
 
-#result.show { display: block; }
-#result.error { border-color: #ef4444; color: #fca5a5; }
+#result.show, #urlResult.show { display: block; }
+#result.error, #urlResult.error { border-color: #ef4444; color: #fca5a5; }
 #result.success { border-color: #22c55e; color: #86efac; }
-#result.info { border-color: #38bdf8; color: #7dd3fc; }
+#result.info, #urlResult.info { border-color: #38bdf8; color: #7dd3fc; }
 
 .metric-grid {
     display: grid;
@@ -219,42 +188,16 @@ button:disabled {
     padding: 17px 10px;
 }
 
-.metric-label {
-    color: #94a3b8;
-    font-size: 13px;
-    margin-bottom: 10px;
-}
-
-.metric-value {
-    font-size: 23px;
-    font-weight: bold;
-    color: #38bdf8;
-}
+.metric-label { color: #94a3b8; font-size: 13px; margin-bottom: 10px; }
+.metric-value { font-size: 23px; font-weight: bold; color: #38bdf8; }
 
 .risk-low { color: #4ade80; }
 .risk-medium { color: #facc15; }
 .risk-high { color: #f87171; }
 
-.probability-section {
-    text-align: left;
-    margin-top: 20px;
-}
-
-.probability-track {
-    width: 100%;
-    height: 12px;
-    background: #334155;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 10px;
-}
-
-#probabilityBar {
-    height: 100%;
-    width: 0%;
-    background: #ef4444;
-    transition: width .4s ease;
-}
+.probability-section { text-align: left; margin-top: 20px; }
+.probability-track { height: 12px; margin-top: 10px; }
+#probabilityBar { height: 100%; background: #ef4444; transition: width .4s ease; }
 
 .recommendations {
     margin-top: 18px;
@@ -265,15 +208,8 @@ button:disabled {
     color: #e2e8f0;
 }
 
-.recommendations h3 {
-    color: #38bdf8;
-    text-align: center;
-}
-
-.recommendations li {
-    margin: 10px 0;
-    line-height: 1.5;
-}
+.recommendations h3 { color: #38bdf8; text-align: center; }
+.recommendations li { margin: 10px 0; line-height: 1.5; }
 
 .history-header {
     display: flex;
@@ -283,15 +219,8 @@ button:disabled {
     flex-wrap: wrap;
 }
 
-.history-header h2 {
-    color: #38bdf8;
-    font-size: 21px;
-}
-
-.clear-btn {
-    background: #991b1b;
-    padding: 10px 14px;
-}
+.history-header h2 { color: #38bdf8; font-size: 21px; }
+.clear-btn { background: #991b1b; padding: 10px 14px; }
 
 .history-item {
     display: flex;
@@ -302,17 +231,19 @@ button:disabled {
     border-bottom: 1px solid #334155;
 }
 
-.history-item:last-child { border-bottom: none; }
-
 .history-result { font-weight: bold; }
 .history-date { color: #94a3b8; font-size: 12px; margin-top: 5px; }
 .phishing { color: #f87171; }
 .legitimate { color: #4ade80; }
 
-.empty-history {
-    color: #94a3b8;
-    text-align: center;
-    padding: 18px 0;
+.empty-history { color: #94a3b8; text-align: center; padding: 18px 0; }
+
+.url-feature-list {
+    text-align: left;
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-top: 14px;
+    overflow-wrap: anywhere;
 }
 
 .footer {
@@ -339,48 +270,66 @@ button:disabled {
     <div class="header">
         <div class="shield">🛡️</div>
         <h1>Phishing Website Detection</h1>
-        <p class="subtitle">
-            Machine Learning Based Website Security Scanner
-        </p>
+        <p class="subtitle">Machine Learning Based Website Security Scanner</p>
     </div>
 
     <!-- SECURITY DASHBOARD -->
     <div class="dashboard">
         <h2>🛡️ Security Dashboard</h2>
-        <p class="history-date">
-            Recent predictions saved in this browser (maximum 10).
-        </p>
+        <p class="history-date">Recent predictions saved in this browser (maximum 10).</p>
 
         <div class="dashboard-grid">
-
             <div class="dashboard-card">
                 <div class="dashboard-label">Total Scans</div>
                 <div class="dashboard-number" id="totalScans">0</div>
             </div>
-
             <div class="dashboard-card">
                 <div class="dashboard-label">Phishing Detected</div>
                 <div class="dashboard-number danger" id="phishingCount">0</div>
             </div>
-
             <div class="dashboard-card">
                 <div class="dashboard-label">Legitimate</div>
                 <div class="dashboard-number safe" id="legitimateCount">0</div>
             </div>
-
             <div class="dashboard-card">
                 <div class="dashboard-label">High Risk</div>
                 <div class="dashboard-number danger" id="highRiskCount">0</div>
             </div>
-
         </div>
     </div>
 
-    <h2 class="section-title">Website Security Analysis</h2>
+    <!-- DIRECT URL SCANNER -->
+    <div class="url-scanner">
+        <h2>🔎 Direct URL Scanner</h2>
+        <p class="description">
+            Enter a website URL. The separate URL-only ML model analyses seven URL-based features.
+        </p>
 
-    <p class="description">
-        Enter exactly 28 comma-separated website feature values.
-    </p>
+        <input
+            type="url"
+            id="urlInput"
+            class="url-input"
+            placeholder="https://example.com/login"
+            autocomplete="url"
+            maxlength="2048"
+        >
+
+        <button class="url-scan-btn" id="urlScanBtn" onclick="scanURL()">
+            🔍 Scan URL
+        </button>
+
+        <p class="model-note">
+            This scanner uses a separate 7-feature model (test accuracy: 72.23%).
+            It analyses URL structure only. It does not open or inspect the website's page content.
+            Its prediction is an estimate, not a guarantee of safety.
+        </p>
+
+        <div id="urlResult" aria-live="polite"></div>
+    </div>
+
+    <!-- MANUAL FEATURE SCANNER -->
+    <h2 class="section-title">Manual Feature Scanner (28 Features)</h2>
+    <p class="description">Use this option when you already have all 28 dataset feature values.</p>
 
     <div class="guidance">
         <strong>Input Guidelines</strong><br>
@@ -389,20 +338,15 @@ button:disabled {
         Total required features: 28
     </div>
 
-    <!-- FEATURE COUNTER -->
     <div class="counter-card">
         <div class="counter-top">
             <strong>Feature Input Progress</strong>
             <span id="counter">0 / 28</span>
         </div>
-
         <div class="progress-track">
             <div id="progress"></div>
         </div>
-
-        <div id="inputStatus">
-            Enter your 28 feature values to begin.
-        </div>
+        <div id="inputStatus">Enter your 28 feature values to begin.</div>
     </div>
 
     <textarea
@@ -411,27 +355,18 @@ button:disabled {
         oninput="updateCounter()"
     ></textarea>
 
-    <button
-        class="detect-btn"
-        id="detectBtn"
-        onclick="detectWebsite()"
-    >
+    <button class="detect-btn" id="detectBtn" onclick="detectWebsite()">
         🛡️ Detect Phishing
     </button>
 
-    <!-- PREDICTION RESULT -->
     <div id="result" aria-live="polite"></div>
 
     <!-- PREDICTION HISTORY -->
     <div class="history-card">
         <div class="history-header">
             <h2>📊 Prediction History</h2>
-
-            <button class="clear-btn" onclick="clearHistory()">
-                Clear History
-            </button>
+            <button class="clear-btn" onclick="clearHistory()">Clear History</button>
         </div>
-
         <div id="historyList"></div>
     </div>
 
@@ -444,21 +379,17 @@ button:disabled {
 <script>
 const HISTORY_KEY = "phishingPredictionHistory";
 
-/* SECURITY DASHBOARD */
+/* DASHBOARD */
 function renderDashboard() {
     let history = [];
 
     try {
-        history = JSON.parse(
-            localStorage.getItem(HISTORY_KEY) || "[]"
-        );
+        history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
     } catch (error) {
         history = [];
     }
 
-    if (!Array.isArray(history)) {
-        history = [];
-    }
+    if (!Array.isArray(history)) history = [];
 
     const recentHistory = history.slice(0, 10);
 
@@ -468,45 +399,29 @@ function renderDashboard() {
 
     recentHistory.forEach(item => {
         const result = String(
-            typeof item === "string"
-                ? item
-                : item.result || ""
+            typeof item === "string" ? item : item.result || ""
         ).toLowerCase();
 
-        if (result.includes("phishing")) {
-            phishing++;
-        } else if (result.includes("legitimate")) {
-            legitimate++;
-        }
+        if (result.includes("phishing")) phishing++;
+        else if (result.includes("legitimate")) legitimate++;
 
         if (
             typeof item === "object" &&
             String(item.risk_level || "").toLowerCase() === "high"
-        ) {
-            highRisk++;
-        }
+        ) highRisk++;
     });
 
-    document.getElementById("totalScans").textContent =
-        recentHistory.length;
-
-    document.getElementById("phishingCount").textContent =
-        phishing;
-
-    document.getElementById("legitimateCount").textContent =
-        legitimate;
-
-    document.getElementById("highRiskCount").textContent =
-        highRisk;
+    document.getElementById("totalScans").textContent = recentHistory.length;
+    document.getElementById("phishingCount").textContent = phishing;
+    document.getElementById("legitimateCount").textContent = legitimate;
+    document.getElementById("highRiskCount").textContent = highRisk;
 }
 
-/* INPUT DETAILS */
+/* FEATURE COUNTER */
 function getInputDetails() {
     const input = document.getElementById("features").value.trim();
 
-    if (!input) {
-        return { count: 0, valid: false, empty: true };
-    }
+    if (!input) return { count: 0, valid: false, empty: true };
 
     const tokens = input.split(",").map(x => x.trim());
 
@@ -518,18 +433,14 @@ function getInputDetails() {
     };
 }
 
-/* FEATURE COUNTER */
 function updateCounter() {
     const details = getInputDetails();
-
     const counter = document.getElementById("counter");
     const progress = document.getElementById("progress");
     const status = document.getElementById("inputStatus");
 
     counter.innerText = `${details.count} / 28`;
-
-    progress.style.width =
-        Math.min(details.count / 28 * 100, 100) + "%";
+    progress.style.width = Math.min(details.count / 28 * 100, 100) + "%";
 
     counter.classList.remove("complete");
     progress.classList.remove("complete");
@@ -547,15 +458,12 @@ function updateCounter() {
     } else {
         counter.classList.add("complete");
         progress.classList.add("complete");
-
-        status.innerText =
-            "✓ All 28 feature values are valid. Ready to predict!";
-
+        status.innerText = "✓ All 28 feature values are valid. Ready to predict!";
         status.className = "valid";
     }
 }
 
-/* DISPLAY MESSAGE */
+/* SHOW MESSAGE */
 function showMessage(message, type) {
     const result = document.getElementById("result");
     result.replaceChildren();
@@ -567,18 +475,18 @@ function showMessage(message, type) {
     result.className = "show " + type;
 }
 
-/* SAVE PREDICTION */
+/* SAVE HISTORY */
 function savePrediction(data) {
     try {
-        const history = JSON.parse(
-            localStorage.getItem(HISTORY_KEY) || "[]"
-        );
+        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
 
         history.unshift({
             result: data.result,
             confidence: data.confidence,
             phishing_probability: data.phishing_probability,
             risk_level: data.risk_level,
+            url: data.url || "",
+            scan_type: data.scan_type || "Manual 28-feature",
             date: new Date().toISOString()
         });
 
@@ -595,7 +503,7 @@ function savePrediction(data) {
     }
 }
 
-/* PREDICTION HISTORY */
+/* RENDER HISTORY */
 function renderHistory() {
     const historyList = document.getElementById("historyList");
     historyList.replaceChildren();
@@ -603,9 +511,7 @@ function renderHistory() {
     let history = [];
 
     try {
-        history = JSON.parse(
-            localStorage.getItem(HISTORY_KEY) || "[]"
-        );
+        history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
     } catch (error) {
         history = [];
     }
@@ -613,9 +519,7 @@ function renderHistory() {
     if (!Array.isArray(history) || history.length === 0) {
         const empty = document.createElement("div");
         empty.className = "empty-history";
-        empty.textContent =
-            "No predictions yet. Your results will appear here.";
-
+        empty.textContent = "No predictions yet. Your results will appear here.";
         historyList.appendChild(empty);
         return;
     }
@@ -625,7 +529,6 @@ function renderHistory() {
         row.className = "history-item";
 
         const details = document.createElement("div");
-
         const label = document.createElement("div");
         label.className = "history-result";
 
@@ -633,25 +536,33 @@ function renderHistory() {
             typeof item === "string" ? item : item.result || ""
         ).toLowerCase();
 
-        if (normalized.includes("phishing")) {
-            label.classList.add("phishing");
-        } else if (normalized.includes("legitimate")) {
-            label.classList.add("legitimate");
-        }
+        if (normalized.includes("phishing")) label.classList.add("phishing");
+        else if (normalized.includes("legitimate")) label.classList.add("legitimate");
 
         label.textContent =
-            typeof item === "string"
-                ? item
-                : item.result || "Prediction completed";
+            typeof item === "string" ? item : item.result || "Prediction completed";
 
         details.appendChild(label);
+
+        if (typeof item === "object" && item.url) {
+            const urlLine = document.createElement("div");
+            urlLine.className = "history-date";
+            urlLine.textContent = `URL: ${item.url}`;
+            details.appendChild(urlLine);
+        }
+
+        if (typeof item === "object" && item.scan_type) {
+            const typeLine = document.createElement("div");
+            typeLine.className = "history-date";
+            typeLine.textContent = `Scanner: ${item.scan_type}`;
+            details.appendChild(typeLine);
+        }
 
         if (typeof item === "object") {
             const date = document.createElement("div");
             date.className = "history-date";
 
             const parsedDate = new Date(item.date);
-
             date.textContent = isNaN(parsedDate.getTime())
                 ? "Date unavailable"
                 : parsedDate.toLocaleString();
@@ -661,9 +572,7 @@ function renderHistory() {
             if (item.confidence !== undefined) {
                 const score = document.createElement("div");
                 score.className = "history-date";
-                score.textContent =
-                    `Model confidence: ${item.confidence}%`;
-
+                score.textContent = `Model confidence: ${item.confidence}%`;
                 details.appendChild(score);
             }
         }
@@ -675,12 +584,9 @@ function renderHistory() {
 
 /* CLEAR HISTORY */
 function clearHistory() {
-    if (!confirm("Are you sure you want to clear prediction history?")) {
-        return;
-    }
+    if (!confirm("Are you sure you want to clear prediction history?")) return;
 
     localStorage.removeItem(HISTORY_KEY);
-
     renderHistory();
     renderDashboard();
 }
@@ -700,59 +606,42 @@ function addMetric(parent, label, value, extraClass = "") {
 
     card.appendChild(title);
     card.appendChild(number);
-
     parent.appendChild(card);
 }
 
-/* DISPLAY PREDICTION */
+/* DISPLAY MANUAL PREDICTION */
 function displayPrediction(data) {
     const result = document.getElementById("result");
     result.replaceChildren();
 
     const heading = document.createElement("h2");
     heading.textContent = data.result || "Prediction completed";
-
     result.appendChild(heading);
 
     const metricGrid = document.createElement("div");
     metricGrid.className = "metric-grid";
 
     if (data.confidence !== undefined) {
-        addMetric(
-            metricGrid,
-            "Model Confidence",
-            `${data.confidence}%`
-        );
+        addMetric(metricGrid, "Model Confidence", `${data.confidence}%`);
     }
 
     if (data.phishing_probability !== undefined) {
-        addMetric(
-            metricGrid,
-            "Phishing Probability",
-            `${data.phishing_probability}%`
-        );
+        addMetric(metricGrid, "Phishing Probability", `${data.phishing_probability}%`);
     }
 
     if (data.risk_level !== undefined) {
         const risk = String(data.risk_level).toLowerCase();
-
         let riskClass = "";
 
         if (risk === "high") riskClass = "risk-high";
         else if (risk === "medium") riskClass = "risk-medium";
         else if (risk === "low") riskClass = "risk-low";
 
-        addMetric(
-            metricGrid,
-            "Risk Level",
-            data.risk_level,
-            riskClass
-        );
+        addMetric(metricGrid, "Risk Level", data.risk_level, riskClass);
     }
 
     result.appendChild(metricGrid);
 
-    /* PROBABILITY BAR */
     if (data.phishing_probability !== undefined) {
         const section = document.createElement("div");
         section.className = "probability-section";
@@ -767,14 +656,11 @@ function displayPrediction(data) {
         bar.id = "probabilityBar";
 
         const probability = Number(data.phishing_probability);
-
-        bar.style.width =
-            Math.max(0, Math.min(probability, 100)) + "%";
+        bar.style.width = Math.max(0, Math.min(probability, 100)) + "%";
 
         track.appendChild(bar);
         section.appendChild(label);
         section.appendChild(track);
-
         result.appendChild(section);
     }
 
@@ -782,16 +668,13 @@ function displayPrediction(data) {
     note.className = "history-date";
     note.textContent =
         "Note: Model probability is an estimate, not a guarantee of correctness.";
-
     result.appendChild(note);
 
-    /* SECURITY RECOMMENDATIONS */
     const box = document.createElement("div");
     box.className = "recommendations";
 
     const title = document.createElement("h3");
     title.textContent = "Security Recommendations";
-
     box.appendChild(title);
 
     const list = document.createElement("ul");
@@ -808,20 +691,121 @@ function displayPrediction(data) {
 
     box.appendChild(list);
     result.appendChild(box);
-
     result.className = "show success";
 }
 
-/* MAIN PREDICTION FUNCTION */
+/* DISPLAY URL PREDICTION */
+function displayURLPrediction(data) {
+    const box = document.getElementById("urlResult");
+    box.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent = data.result || "URL scan completed";
+    box.appendChild(heading);
+
+    const urlText = document.createElement("p");
+    urlText.className = "history-date";
+    urlText.textContent = `Scanned URL: ${data.url}`;
+    box.appendChild(urlText);
+
+    const metrics = document.createElement("div");
+    metrics.className = "metric-grid";
+
+    addMetric(metrics, "Model Confidence", `${data.confidence}%`);
+    addMetric(metrics, "Phishing Probability", `${data.phishing_probability}%`);
+
+    const risk = String(data.risk_level || "").toLowerCase();
+    const riskClass = risk === "high" ? "risk-high" :
+        risk === "medium" ? "risk-medium" : "risk-low";
+
+    addMetric(metrics, "Risk Level", data.risk_level || "Unknown", riskClass);
+    box.appendChild(metrics);
+
+    const note = document.createElement("p");
+    note.className = "model-note";
+    note.textContent =
+        "URL-only model: it checks URL structure and does not inspect page content, certificates, DNS reputation, or live website behaviour. A low score does not prove a site is safe.";
+    box.appendChild(note);
+
+    if (data.extracted_features) {
+        const featureBox = document.createElement("div");
+        featureBox.className = "url-feature-list";
+
+        const title = document.createElement("strong");
+        title.textContent = "Extracted URL features";
+        featureBox.appendChild(title);
+
+        const list = document.createElement("ul");
+
+        Object.entries(data.extracted_features).forEach(([key, value]) => {
+            const li = document.createElement("li");
+            li.textContent = `${key}: ${value}`;
+            list.appendChild(li);
+        });
+
+        featureBox.appendChild(list);
+        box.appendChild(featureBox);
+    }
+
+    box.className = "show info";
+}
+
+/* DIRECT URL SCANNER */
+async function scanURL() {
+    const input = document.getElementById("urlInput");
+    const button = document.getElementById("urlScanBtn");
+    const box = document.getElementById("urlResult");
+    const url = input.value.trim();
+
+    if (!url) {
+        box.textContent = "Please enter a URL to scan.";
+        box.className = "show error";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "⏳ Scanning URL...";
+    box.textContent = "Analysing URL structure...";
+    box.className = "show info";
+
+    try {
+        const response = await fetch("/scan-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            const detail = typeof data.detail === "string"
+                ? data.detail
+                : "URL scan failed. Please check the URL.";
+            throw new Error(detail);
+        }
+
+        data.url = data.url || url;
+        data.scan_type = "Direct URL (7-feature)";
+
+        savePrediction(data);
+        displayURLPrediction(data);
+
+    } catch (error) {
+        box.textContent = "Error: " + error.message;
+        box.className = "show error";
+    } finally {
+        button.disabled = false;
+        button.textContent = "🔍 Scan URL";
+    }
+}
+
+/* MANUAL 28-FEATURE PREDICTION */
 async function detectWebsite() {
     const input = document.getElementById("features").value.trim();
     const button = document.getElementById("detectBtn");
 
     if (!input) {
-        showMessage(
-            "Error: Please enter the 28 feature values.",
-            "error"
-        );
+        showMessage("Error: Please enter the 28 feature values.", "error");
         return;
     }
 
@@ -836,18 +820,12 @@ async function detectWebsite() {
     }
 
     if (tokens.some(x => x === "")) {
-        showMessage(
-            "Error: Empty values are not allowed.",
-            "error"
-        );
+        showMessage("Error: Empty values are not allowed.", "error");
         return;
     }
 
     if (tokens.some(x => !["-1", "0", "1"].includes(x))) {
-        showMessage(
-            "Error: Only -1, 0 and 1 values are allowed.",
-            "error"
-        );
+        showMessage("Error: Only -1, 0 and 1 values are allowed.", "error");
         return;
     }
 
@@ -855,18 +833,13 @@ async function detectWebsite() {
 
     button.disabled = true;
     button.innerText = "⏳ Analyzing...";
-
     showMessage("Analyzing website features...", "info");
 
     try {
         const response = await fetch("/predict", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                values: values
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ values })
         });
 
         const data = await response.json();
@@ -880,20 +853,15 @@ async function detectWebsite() {
         }
 
         if (!data.result) {
-            throw new Error(
-                "The API did not return a prediction result."
-            );
+            throw new Error("The API did not return a prediction result.");
         }
 
+        data.scan_type = "Manual 28-feature";
         savePrediction(data);
         displayPrediction(data);
 
     } catch (error) {
-        showMessage(
-            "Error: " + error.message,
-            "error"
-        );
-
+        showMessage("Error: " + error.message, "error");
     } finally {
         button.disabled = false;
         button.innerText = "🛡️ Detect Phishing";
@@ -906,6 +874,5 @@ renderHistory();
 renderDashboard();
 
 </script>
-
 </body>
 </html>
