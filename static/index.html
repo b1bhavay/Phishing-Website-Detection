@@ -358,7 +358,49 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     line-height: 1.6;
 }
 
+
+/* PHISHING AWARENESS SECTION */
+.awareness-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: #0f1b2e;
+    border: 1px solid #334155;
+    border-radius: 14px;
+}
+.awareness-section h2 { color: #38bdf8; margin-top: 0; }
+.awareness-intro { color: #94a3b8; line-height: 1.6; font-size: 14px; }
+.awareness-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+}
+.awareness-card {
+    padding: 16px;
+    background: #172338;
+    border: 1px solid #334155;
+    border-radius: 12px;
+}
+.awareness-card h3 { color: #7dd3fc; margin-top: 0; font-size: 16px; }
+.awareness-card p, .awareness-card li {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.65;
+}
+.awareness-card ul { padding-left: 20px; margin-bottom: 0; }
+.awareness-reminder {
+    margin-top: 16px;
+    padding: 14px;
+    border-left: 4px solid #38bdf8;
+    background: rgba(2,132,199,.10);
+    color: #e2e8f0;
+    border-radius: 8px;
+    line-height: 1.6;
+    font-size: 13px;
+}
+
 @media(max-width:600px) {
+    .awareness-grid { grid-template-columns: 1fr; }
     body { padding: 12px; }
     .container { padding: 22px 16px; }
     h1 { font-size: 26px; }
@@ -538,6 +580,64 @@ button:disabled { opacity: .6; cursor: not-allowed; }
         </div>
         <div id="historyList"></div>
     </div>
+
+
+
+    <section class="awareness-section" aria-labelledby="awarenessTitle">
+        <h2 id="awarenessTitle">🎓 Phishing Awareness & Safety Guide</h2>
+        <p class="awareness-intro">
+            Learn how common phishing attacks work, recognise warning signs, and take steps to protect your accounts.
+        </p>
+
+        <div class="awareness-grid">
+            <article class="awareness-card">
+                <h3>🎣 1. Common Types of Phishing</h3>
+                <ul>
+                    <li><strong>Email phishing:</strong> Fraudulent emails that imitate trusted organisations.</li>
+                    <li><strong>Smishing:</strong> Scam messages sent through SMS or messaging apps.</li>
+                    <li><strong>Spear phishing:</strong> Targeted messages tailored to a particular person or organisation.</li>
+                    <li><strong>Fake login pages:</strong> Look-alike pages designed to steal usernames and passwords.</li>
+                </ul>
+            </article>
+
+            <article class="awareness-card">
+                <h3>🔍 2. How to Identify a Fake Website</h3>
+                <ul>
+                    <li>Check the domain name carefully for misspellings or extra characters.</li>
+                    <li>Be cautious of unexpected links, urgent threats, and unusual offers.</li>
+                    <li>Verify the website address independently instead of trusting a message link.</li>
+                    <li>Look for unexpected requests for passwords, OTPs, payment details, or personal data.</li>
+                    <li>HTTPS encrypts a connection, but it does not prove that a website is genuine.</li>
+                </ul>
+            </article>
+
+            <article class="awareness-card">
+                <h3>🛡️ 3. Online Safety Tips</h3>
+                <ul>
+                    <li>Use unique, strong passwords and enable multi-factor authentication.</li>
+                    <li>Never share your password, PIN, or OTP with anyone.</li>
+                    <li>Keep your browser, operating system, and security software updated.</li>
+                    <li>Do not open unexpected attachments or install software from unknown links.</li>
+                    <li>When in doubt, contact the organisation using its official website or phone number.</li>
+                </ul>
+            </article>
+
+            <article class="awareness-card">
+                <h3>🚨 4. What to Do After Clicking a Suspicious Link</h3>
+                <ul>
+                    <li>Close the page. Do not enter information or download anything.</li>
+                    <li>If you entered a password, change it immediately using the official website and change it anywhere else it was reused.</li>
+                    <li>If you shared banking details or made a payment, contact your bank immediately.</li>
+                    <li>Run a security scan if you downloaded or opened a suspicious file.</li>
+                    <li>Report the message or website to the relevant service or organisation.</li>
+                </ul>
+            </article>
+        </div>
+
+        <div class="awareness-reminder">
+            <strong>Remember:</strong> No single sign can confirm that a website is safe. This project's URL scanner analyses URL structure only; always verify important websites independently.
+        </div>
+    </section>
 
     <div class="footer">
         Machine Learning Based Phishing Detection System
