@@ -1,104 +1,229 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Phishing Website Detection</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phishing Website Detection</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #0b1220;
-            color: white;
             margin: 0;
-            padding: 30px;
+            min-height: 100vh;
+            padding: 35px 18px;
+            font-family: Arial, sans-serif;
+            color: #f8fafc;
+            background:
+                radial-gradient(circle at top left, #12345a, transparent 40%),
+                linear-gradient(135deg, #080f1e, #101c32 55%, #08111f);
         }
 
         .container {
-            max-width: 750px;
-            margin: auto;
-            background: #172338;
-            padding: 30px;
-            border-radius: 15px;
+            max-width: 850px;
+            margin: 25px auto;
+            padding: 38px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 22px;
+            background: rgba(23, 35, 56, 0.94);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .shield {
+            font-size: 42px;
+            margin-bottom: 10px;
         }
 
         h1 {
-            text-align: center;
             color: #38bdf8;
+            font-size: 34px;
+            margin: 8px 0;
         }
 
-        p {
-            text-align: center;
+        .subtitle {
             color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 21px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 15px;
         }
 
         textarea {
             width: 100%;
-            height: 170px;
-            box-sizing: border-box;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-size: 14px;
+            height: 190px;
+            resize: vertical;
+            padding: 18px;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 15px;
+            font-family: monospace;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        textarea:focus {
+            border: 2px solid #38bdf8;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
         }
 
         button {
             width: 100%;
-            padding: 15px;
-            margin-top: 15px;
-            background: #0284c7;
-            color: white;
+            padding: 16px;
+            margin-top: 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #0284c7, #2563eb);
+            color: white;
             font-size: 17px;
+            font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(2, 132, 199, 0.3);
         }
 
         button:disabled {
-            background: #475569;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         #result {
-            margin-top: 20px;
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 14px;
             text-align: center;
-            font-size: 18px;
-            font-weight: bold;
+            background: #0f1b2e;
+            border: 1px solid #334155;
         }
 
-        .error {
-            color: #f87171;
+        #result.show {
+            display: block;
         }
 
-        .success {
-            color: #4ade80;
+        #result h2 {
+            margin-top: 0;
+            font-size: 27px;
         }
 
-        .info {
+        #result.error {
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        #result.success {
+            border-color: #22c55e;
+            color: #86efac;
+        }
+
+        #result.info {
+            border-color: #38bdf8;
+            color: #7dd3fc;
+        }
+
+        .recommendations {
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #172338;
+            text-align: left;
+            color: #e2e8f0;
+        }
+
+        .recommendations h3 {
             color: #38bdf8;
+            text-align: center;
+        }
+
+        .recommendations li {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 22px 16px;
+                margin: 12px auto;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            textarea {
+                height: 160px;
+            }
         }
     </style>
 </head>
 
 <body>
+
 <div class="container">
 
-    <h1>🛡️ Phishing Website Detection</h1>
+    <div class="header">
+        <div class="shield">🛡️</div>
+        <h1>Phishing Website Detection</h1>
+        <p class="subtitle">
+            Machine Learning Based Website Security Scanner
+        </p>
+    </div>
 
-    <p>Machine Learning Based Website Security Scanner</p>
+    <h2 class="section-title">Website Security Analysis</h2>
 
-    <h3>Enter 28 Website Features</h3>
+    <p class="description">
+        Enter exactly 28 comma-separated website feature values.
+        Allowed values: -1, 0 and 1.
+    </p>
 
-    <p>Enter exactly 28 comma-separated values (-1, 0, 1)</p>
-
-    <textarea id="features"
-        placeholder="Example: 1, -1, 0, 1, ..."></textarea>
+    <textarea
+        id="features"
+        placeholder="Example: 1, -1, 0, 1, ..."
+    ></textarea>
 
     <button id="detectBtn" onclick="detectWebsite()">
-        Detect Phishing
+        🛡️ Detect Phishing
     </button>
 
     <div id="result" aria-live="polite"></div>
+
+    <div class="footer">
+        Machine Learning Based Phishing Detection System
+    </div>
 
 </div>
 
@@ -111,11 +236,14 @@ async function detectWebsite() {
 
     result.innerHTML = "";
     result.className = "";
+    result.style.display = "block";
 
-    // Check empty input
+    // Empty input validation
     if (input === "") {
-        result.innerText = "Error: Please enter the 28 feature values.";
-        result.className = "error";
+        showMessage(
+            "Error: Please enter the 28 feature values.",
+            "error"
+        );
         return;
     }
 
@@ -124,37 +252,36 @@ async function detectWebsite() {
 
     // Check exactly 28 values
     if (tokens.length !== 28) {
-        result.innerText =
-            `Error: Exactly 28 values are required. You entered ${tokens.length}.`;
-        result.className = "error";
+        showMessage(
+            `Please enter exactly 28 values. You entered ${tokens.length}.`,
+            "error"
+        );
         return;
     }
 
     // Check empty values
     if (tokens.some(x => x === "")) {
-        result.innerText = "Error: Empty values are not allowed.";
-        result.className = "error";
+        showMessage(
+            "Error: Empty values are not allowed.",
+            "error"
+        );
         return;
     }
 
     // Check allowed values
-    const invalidValues = tokens.filter(
-        x => !["-1", "0", "1"].includes(x)
-    );
-
-    if (invalidValues.length > 0) {
-        result.innerText =
-            "Error: Only -1, 0, and 1 values are allowed.";
-        result.className = "error";
+    if (tokens.some(x => !["-1", "0", "1"].includes(x))) {
+        showMessage(
+            "Error: Only -1, 0 and 1 values are allowed.",
+            "error"
+        );
         return;
     }
 
-    // Convert valid values into numbers
     const values = tokens.map(Number);
 
-    result.innerText = "Scanning website...";
-    result.className = "info";
     button.disabled = true;
+    button.innerText = "⏳ Analyzing...";
+    showMessage("Analyzing website features...", "info");
 
     try {
 
@@ -176,28 +303,62 @@ async function detectWebsite() {
             );
         }
 
-        result.className = "success";
+        result.innerHTML = "";
 
-        result.innerHTML = `
-            <h2>${data.result}</h2>
-            <h3>Security Recommendations</h3>
-            <ul style="text-align:left; color:white;">
-                <li>Always verify the website URL before entering personal information.</li>
-                <li>Never share passwords or OTPs on suspicious websites.</li>
-                <li>Check for HTTPS and a valid security certificate.</li>
-            </ul>
-        `;
+        const heading = document.createElement("h2");
+        heading.textContent = data.result || "Prediction completed";
+        result.appendChild(heading);
+
+        const recommendationBox = document.createElement("div");
+        recommendationBox.className = "recommendations";
+
+        const recommendationTitle = document.createElement("h3");
+        recommendationTitle.textContent = "Security Recommendations";
+        recommendationBox.appendChild(recommendationTitle);
+
+        const list = document.createElement("ul");
+
+        [
+            "Always verify the website URL before entering personal information.",
+            "Never share passwords or OTPs on suspicious websites.",
+            "Check for HTTPS and a valid security certificate."
+        ].forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            list.appendChild(li);
+        });
+
+        recommendationBox.appendChild(list);
+        result.appendChild(recommendationBox);
+
+        result.className = "show success";
 
     } catch (error) {
 
-        result.innerText =
-            "Error: " + error.message;
-
-        result.className = "error";
+        showMessage(
+            "Error: " + error.message,
+            "error"
+        );
 
     } finally {
+
         button.disabled = false;
+        button.innerText = "🛡️ Detect Phishing";
+
     }
+}
+
+function showMessage(message, type) {
+
+    const result = document.getElementById("result");
+
+    result.innerHTML = "";
+
+    const heading = document.createElement("h2");
+    heading.textContent = message;
+
+    result.appendChild(heading);
+    result.className = "show " + type;
 }
 </script>
 
