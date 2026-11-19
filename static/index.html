@@ -298,6 +298,66 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     font-size: 12px;
 }
 
+
+/* MODEL PERFORMANCE DASHBOARD */
+.model-performance {
+    margin: 20px 0;
+    padding: 20px;
+    background: #0f1b2e;
+    border: 1px solid #334155;
+    border-radius: 14px;
+}
+.model-performance h2 { color: #38bdf8; margin-top: 0; }
+.model-performance .model-intro {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.performance-table-wrap { overflow-x: auto; margin-top: 16px; }
+.performance-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 560px;
+    color: #e2e8f0;
+    font-size: 13px;
+}
+.performance-table th, .performance-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #334155;
+    text-align: center;
+}
+.performance-table th { color: #7dd3fc; background: #172338; }
+.performance-table td:first-child, .performance-table th:first-child { text-align: left; }
+.performance-table tr.best-model td { color: #86efac; font-weight: bold; }
+.accuracy-chart { margin-top: 20px; }
+.accuracy-row { margin: 14px 0; }
+.accuracy-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+.accuracy-track {
+    height: 12px;
+    width: 100%;
+    background: #334155;
+    border-radius: 20px;
+    overflow: hidden;
+}
+.accuracy-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #0284c7, #38bdf8);
+}
+.performance-note {
+    margin-top: 16px;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
 @media(max-width:600px) {
     body { padding: 12px; }
     .container { padding: 22px 16px; }
@@ -340,6 +400,74 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                 <div class="dashboard-number danger" id="highRiskCount">0</div>
             </div>
         </div>
+    </div>
+
+
+    <div class="model-performance">
+        <h2>📈 Model Performance Dashboard</h2>
+        <p class="model-intro">
+            Comparison of the three machine learning models evaluated during training.
+            Random Forest achieved the highest F1-score on the original 28-feature dataset.
+        </p>
+
+        <div class="performance-table-wrap">
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Logistic Regression</td>
+                        <td>92.94%</td>
+                        <td>92.49%</td>
+                        <td>95.04%</td>
+                        <td>93.75%</td>
+                    </tr>
+                    <tr>
+                        <td>Decision Tree</td>
+                        <td>96.92%</td>
+                        <td>96.86%</td>
+                        <td>97.64%</td>
+                        <td>97.25%</td>
+                    </tr>
+                    <tr class="best-model">
+                        <td>🏆 Random Forest</td>
+                        <td>97.51%</td>
+                        <td>97.12%</td>
+                        <td>98.46%</td>
+                        <td>97.78%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="accuracy-chart">
+            <h3>Accuracy Comparison</h3>
+            <div class="accuracy-row">
+                <div class="accuracy-label"><span>Logistic Regression</span><strong>92.94%</strong></div>
+                <div class="accuracy-track"><div class="accuracy-fill" style="width:92.94%"></div></div>
+            </div>
+            <div class="accuracy-row">
+                <div class="accuracy-label"><span>Decision Tree</span><strong>96.92%</strong></div>
+                <div class="accuracy-track"><div class="accuracy-fill" style="width:96.92%"></div></div>
+            </div>
+            <div class="accuracy-row">
+                <div class="accuracy-label"><span>Random Forest</span><strong>97.51%</strong></div>
+                <div class="accuracy-track"><div class="accuracy-fill" style="width:97.51%"></div></div>
+            </div>
+        </div>
+
+        <p class="performance-note">
+            Note: These metrics are from evaluation of the original 28-feature model.
+            The separate Direct URL Scanner uses a 7-feature URL-only model and has a
+            test accuracy of 72.23%. These two model results should not be confused.
+        </p>
     </div>
 
     <div class="url-scanner">
