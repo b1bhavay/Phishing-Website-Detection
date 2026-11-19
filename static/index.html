@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +31,6 @@ body {
 
 .header { text-align: center; margin-bottom: 30px; }
 .shield { font-size: 44px; }
-
 h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
 
 .subtitle, .description {
@@ -246,6 +244,53 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     overflow-wrap: anywhere;
 }
 
+/* EXPLAIN PREDICTION */
+.explanation-box {
+    margin-top: 20px;
+    padding: 18px;
+    background: #172338;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.explanation-box h3 {
+    color: #38bdf8;
+    margin-top: 0;
+}
+
+.explanation-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #334155;
+}
+
+.explanation-item:last-child {
+    border-bottom: none;
+}
+
+.explanation-item strong {
+    color: #e2e8f0;
+}
+
+.explanation-item p {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+.feature-value {
+    color: #38bdf8;
+    font-weight: bold;
+}
+
+.explanation-disclaimer {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+
 .footer {
     margin-top: 30px;
     text-align: center;
@@ -273,7 +318,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
         <p class="subtitle">Machine Learning Based Website Security Scanner</p>
     </div>
 
-    <!-- SECURITY DASHBOARD -->
     <div class="dashboard">
         <h2>🛡️ Security Dashboard</h2>
         <p class="history-date">Recent predictions saved in this browser (maximum 10).</p>
@@ -298,7 +342,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
         </div>
     </div>
 
-    <!-- DIRECT URL SCANNER -->
     <div class="url-scanner">
         <h2>🔎 Direct URL Scanner</h2>
         <p class="description">
@@ -327,7 +370,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
         <div id="urlResult" aria-live="polite"></div>
     </div>
 
-    <!-- MANUAL FEATURE SCANNER -->
     <h2 class="section-title">Manual Feature Scanner (28 Features)</h2>
     <p class="description">Use this option when you already have all 28 dataset feature values.</p>
 
@@ -361,7 +403,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
     <div id="result" aria-live="polite"></div>
 
-    <!-- PREDICTION HISTORY -->
     <div class="history-card">
         <div class="history-header">
             <h2>📊 Prediction History</h2>
@@ -694,881 +735,103 @@ function displayPrediction(data) {
     result.className = "show success";
 }
 
-/* DISPLAY URL PREDICTION */
-function displayURLPrediction(data) {
-    const box = document.getElementById("urlResult");
-    box.replaceChildren();
-
-    const heading = document.createElement("h3");
-    heading.textContent = data.result || "URL scan completed";
-    box.appendChild(heading);
-
-    const urlText = document.createElement("p");
-    urlText.className = "history-date";
-    urlText.textContent = `Scanned URL: ${data.url}`;
-    box.appendChild(urlText);
-
-    const metrics = document.createElement("div");
-    metrics.className = "metric-grid";
-
-    addMetric(metrics, "Model Confidence", `${data.confidence}%`);
-    addMetric(metrics, "Phishing Probability", `${data.phishing_probability}%`);
-
-    const risk = String(data.risk_level || "").toLowerCase();
-    const riskClass = risk === "high" ? "risk-high" :
-        risk === "medium" ? "risk-medium" : "risk-low";
-
-    addMetric(metrics, "Risk Level", data.risk_level || "Unknown", riskClass);
-    box.appendChild(metrics);
-
-    const note = document.createElement("p");
-    note.className = "model-note";
-    note.textContent =
-        "URL-only model: it checks URL structure and does not inspect page content, certificates, DNS reputation, or live website behaviour. A low score does not prove a site is safe.";
-    box.appendChild(note);
-
-    if (data.extracted_features) {
-        const featureBox = document.createElement("div");
-        featureBox.className = "url-feature-list";
-
-        const title = document.createElement("strong");
-        title.textContent = "Extracted URL features";
-        featureBox.appendChild(title);
-
-        const list = document.createElement("ul");
-
-        Object.entries(data.extracted_features).forEach(([key, value]) => {
-            const li = document.createElement("li");
-            li.textContent = `${key}: ${value}`;
-            list.appendChild(li);
-        });
-
-        featureBox.appendChild(list);
-        box.appendChild(featureBox);
-    }
-
-    box.className = "show info";
-}
-
-/* DIRECT URL SCANNER */
-async function scanURL() {
-    const input = document.getElementById("urlInput");
-    const button = document.getElementById("urlScanBtn");
-    const box = document.getElementById("urlResult");
-    const url = input.value.trim();
-
-    if (!url) {
-        box.textContent = "Please enter a URL to scan.";
-        box.className = "show error";
-        return;
-    }
-
-    button.disabled = true;
-    button.textContent = "⏳ Scanning URL...";
-    box.textContent = "Analysing URL structure...";
-    box.className = "show info";
-
-    try {
-        const response = await fetch("/scan-url", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            const detail = typeof data.detail === "string"
-                ? data.detail
-                : "URL scan failed. Please check the URL.";
-            throw new Error(detail);
+/* EXPLAIN PREDICTION */
+function explainURLFeatures(features) {
+    const explanations = {
+        having_ip_address: {
+            title: "IP Address in URL",
+            positive: "The hostname is an IP address rather than a regular domain name.",
+            negative: "The hostname is a regular domain name, not an IP address."
+        },
+        url_length: {
+            title: "URL Length",
+            positive: "The URL is shorter than 54 characters.",
+            neutral: "The URL length is between 54 and 75 characters.",
+            negative: "The URL is longer than 75 characters."
+        },
+        shortining_service: {
+            title: "URL Shortening Service",
+            positive: "The hostname does not match the shortening services checked by this project.",
+            negative: "The hostname matches a shortening service checked by this project."
+        },
+        having_at_symbol: {
+            title: "@ Symbol",
+            positive: "The URL does not contain an @ symbol.",
+            negative: "The URL contains an @ symbol."
+        },
+        prefix_suffix: {
+            title: "Hyphen in Domain",
+            positive: "The extracted domain name does not contain a hyphen.",
+            negative: "The extracted domain name contains a hyphen."
+        },
+        having_sub_domain: {
+            title: "Subdomain Count",
+            positive: "No non-www subdomain was detected.",
+            neutral: "One non-www subdomain was detected.",
+            negative: "More than one non-www subdomain was detected."
+        },
+        https_token: {
+            title: "HTTPS Token in Hostname",
+            positive: "The hostname does not contain the text 'https'.",
+            negative: "The hostname contains the text 'https'."
         }
-
-        data.url = data.url || url;
-        data.scan_type = "Direct URL (7-feature)";
-
-        savePrediction(data);
-        displayURLPrediction(data);
-
-    } catch (error) {
-        box.textContent = "Error: " + error.message;
-        box.className = "show error";
-    } finally {
-        button.disabled = false;
-        button.textContent = "🔍 Scan URL";
-    }
-}
-
-/* MANUAL 28-FEATURE PREDICTION */
-async function detectWebsite() {
-    const input = document.getElementById("features").value.trim();
-    const button = document.getElementById("detectBtn");
-
-    if (!input) {
-        showMessage("Error: Please enter the 28 feature values.", "error");
-        return;
-    }
-
-    const tokens = input.split(",").map(x => x.trim());
-
-    if (tokens.length !== 28) {
-        showMessage(
-            `Please enter exactly 28 values. You entered ${tokens.length}.`,
-            "error"
-        );
-        return;
-    }
-
-    if (tokens.some(x => x === "")) {
-        showMessage("Error: Empty values are not allowed.", "error");
-        return;
-    }
-
-    if (tokens.some(x => !["-1", "0", "1"].includes(x))) {
-        showMessage("Error: Only -1, 0 and 1 values are allowed.", "error");
-        return;
-    }
-
-    const values = tokens.map(Number);
-
-    button.disabled = true;
-    button.innerText = "⏳ Analyzing...";
-    showMessage("Analyzing website features...", "info");
-
-    try {
-        const response = await fetch("/predict", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ values })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                typeof data.detail === "string"
-                    ? data.detail
-                    : "Prediction failed. Please try again."
-            );
-        }
-
-        if (!data.result) {
-            throw new Error("The API did not return a prediction result.");
-        }
-
-        data.scan_type = "Manual 28-feature";
-        savePrediction(data);
-        displayPrediction(data);
-
-    } catch (error) {
-        showMessage("Error: " + error.message, "error");
-    } finally {
-        button.disabled = false;
-        button.innerText = "🛡️ Detect Phishing";
-    }
-}
-
-/* INITIALIZE WEBSITE */
-updateCounter();
-renderHistory();
-renderDashboard();
-
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phishing Website Detection</title>
-
-<style>
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    padding: 25px 18px;
-    font-family: Arial, sans-serif;
-    color: #f8fafc;
-    background:
-        radial-gradient(circle at top left, #12345a, transparent 40%),
-        linear-gradient(135deg, #080f1e, #101c32 55%, #08111f);
-}
-
-.container {
-    max-width: 900px;
-    margin: 25px auto;
-    padding: 35px;
-    border: 1px solid rgba(148,163,184,.2);
-    border-radius: 22px;
-    background: rgba(23,35,56,.94);
-    box-shadow: 0 20px 60px rgba(0,0,0,.35);
-}
-
-.header { text-align: center; margin-bottom: 30px; }
-.shield { font-size: 44px; }
-
-h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
-
-.subtitle, .description {
-    color: #94a3b8;
-    line-height: 1.6;
-}
-
-.section-title { font-size: 21px; }
-
-.dashboard, .url-scanner, .counter-card, .history-card {
-    margin: 20px 0;
-    padding: 20px;
-    background: #0f1b2e;
-    border: 1px solid #334155;
-    border-radius: 14px;
-}
-
-.dashboard h2, .url-scanner h2 { color: #38bdf8; margin-top: 0; }
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-}
-
-.dashboard-card {
-    background: #172338;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 18px;
-}
-
-.dashboard-label { color: #94a3b8; font-size: 13px; margin-bottom: 10px; }
-.dashboard-number { font-size: 28px; font-weight: bold; color: #38bdf8; }
-.dashboard-number.danger { color: #f87171; }
-.dashboard-number.safe { color: #4ade80; }
-
-.guidance {
-    margin: 15px 0;
-    padding: 14px;
-    background: rgba(2,132,199,.10);
-    border: 1px solid rgba(56,189,248,.2);
-    border-radius: 10px;
-    color: #cbd5e1;
-    font-size: 14px;
-    line-height: 1.7;
-}
-
-.counter-top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-}
-
-#counter { color: #38bdf8; font-weight: bold; }
-#counter.complete { color: #4ade80; }
-
-.progress-track, .probability-track {
-    width: 100%;
-    height: 10px;
-    background: #334155;
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-#progress {
-    width: 0%;
-    height: 100%;
-    background: #0284c7;
-    transition: width .25s ease;
-}
-
-#progress.complete { background: #22c55e; }
-
-#inputStatus { margin-top: 10px; font-size: 13px; color: #94a3b8; }
-.valid { color: #4ade80 !important; }
-.invalid { color: #f87171 !important; }
-
-textarea, .url-input {
-    width: 100%;
-    padding: 16px;
-    border: 1px solid #475569;
-    border-radius: 12px;
-    background: #f8fafc;
-    color: #0f172a;
-    font-size: 15px;
-    outline: none;
-}
-
-textarea {
-    height: 190px;
-    resize: vertical;
-    font-family: monospace;
-}
-
-textarea:focus, .url-input:focus {
-    border: 2px solid #38bdf8;
-    box-shadow: 0 0 0 4px rgba(56,189,248,.15);
-}
-
-button {
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg,#0284c7,#2563eb);
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:disabled { opacity: .6; cursor: not-allowed; }
-
-.detect-btn, .url-scan-btn {
-    width: 100%;
-    margin-top: 15px;
-}
-
-.model-note {
-    color: #94a3b8;
-    font-size: 13px;
-    line-height: 1.6;
-    margin-top: 12px;
-}
-
-#result, #urlResult {
-    display: none;
-    margin-top: 22px;
-    padding: 20px;
-    border-radius: 14px;
-    text-align: center;
-    background: #0f1b2e;
-    border: 1px solid #334155;
-    overflow-wrap: anywhere;
-}
-
-#result.show, #urlResult.show { display: block; }
-#result.error, #urlResult.error { border-color: #ef4444; color: #fca5a5; }
-#result.success { border-color: #22c55e; color: #86efac; }
-#result.info, #urlResult.info { border-color: #38bdf8; color: #7dd3fc; }
-
-.metric-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 22px;
-}
-
-.metric-card {
-    background: #172338;
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 17px 10px;
-}
-
-.metric-label { color: #94a3b8; font-size: 13px; margin-bottom: 10px; }
-.metric-value { font-size: 23px; font-weight: bold; color: #38bdf8; }
-
-.risk-low { color: #4ade80; }
-.risk-medium { color: #facc15; }
-.risk-high { color: #f87171; }
-
-.probability-section { text-align: left; margin-top: 20px; }
-.probability-track { height: 12px; margin-top: 10px; }
-#probabilityBar { height: 100%; background: #ef4444; transition: width .4s ease; }
-
-.recommendations {
-    margin-top: 18px;
-    padding: 15px;
-    border-radius: 10px;
-    background: #172338;
-    text-align: left;
-    color: #e2e8f0;
-}
-
-.recommendations h3 { color: #38bdf8; text-align: center; }
-.recommendations li { margin: 10px 0; line-height: 1.5; }
-
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.history-header h2 { color: #38bdf8; font-size: 21px; }
-.clear-btn { background: #991b1b; padding: 10px 14px; }
-
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 4px;
-    border-bottom: 1px solid #334155;
-}
-
-.history-result { font-weight: bold; }
-.history-date { color: #94a3b8; font-size: 12px; margin-top: 5px; }
-.phishing { color: #f87171; }
-.legitimate { color: #4ade80; }
-
-.empty-history { color: #94a3b8; text-align: center; padding: 18px 0; }
-
-.url-feature-list {
-    text-align: left;
-    color: #cbd5e1;
-    font-size: 13px;
-    margin-top: 14px;
-    overflow-wrap: anywhere;
-}
-
-.footer {
-    margin-top: 30px;
-    text-align: center;
-    color: #64748b;
-    font-size: 12px;
-}
-
-@media(max-width:600px) {
-    body { padding: 12px; }
-    .container { padding: 22px 16px; }
-    h1 { font-size: 26px; }
-    textarea { height: 160px; }
-    .metric-grid { grid-template-columns: 1fr; }
-    .dashboard-grid { grid-template-columns: 1fr 1fr; }
-}
-</style>
-</head>
-
-<body>
-<div class="container">
-
-    <div class="header">
-        <div class="shield">🛡️</div>
-        <h1>Phishing Website Detection</h1>
-        <p class="subtitle">Machine Learning Based Website Security Scanner</p>
-    </div>
-
-    <!-- SECURITY DASHBOARD -->
-    <div class="dashboard">
-        <h2>🛡️ Security Dashboard</h2>
-        <p class="history-date">Recent predictions saved in this browser (maximum 10).</p>
-
-        <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <div class="dashboard-label">Total Scans</div>
-                <div class="dashboard-number" id="totalScans">0</div>
-            </div>
-            <div class="dashboard-card">
-                <div class="dashboard-label">Phishing Detected</div>
-                <div class="dashboard-number danger" id="phishingCount">0</div>
-            </div>
-            <div class="dashboard-card">
-                <div class="dashboard-label">Legitimate</div>
-                <div class="dashboard-number safe" id="legitimateCount">0</div>
-            </div>
-            <div class="dashboard-card">
-                <div class="dashboard-label">High Risk</div>
-                <div class="dashboard-number danger" id="highRiskCount">0</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- DIRECT URL SCANNER -->
-    <div class="url-scanner">
-        <h2>🔎 Direct URL Scanner</h2>
-        <p class="description">
-            Enter a website URL. The separate URL-only ML model analyses seven URL-based features.
-        </p>
-
-        <input
-            type="url"
-            id="urlInput"
-            class="url-input"
-            placeholder="https://example.com/login"
-            autocomplete="url"
-            maxlength="2048"
-        >
-
-        <button class="url-scan-btn" id="urlScanBtn" onclick="scanURL()">
-            🔍 Scan URL
-        </button>
-
-        <p class="model-note">
-            This scanner uses a separate 7-feature model (test accuracy: 72.23%).
-            It analyses URL structure only. It does not open or inspect the website's page content.
-            Its prediction is an estimate, not a guarantee of safety.
-        </p>
-
-        <div id="urlResult" aria-live="polite"></div>
-    </div>
-
-    <!-- MANUAL FEATURE SCANNER -->
-    <h2 class="section-title">Manual Feature Scanner (28 Features)</h2>
-    <p class="description">Use this option when you already have all 28 dataset feature values.</p>
-
-    <div class="guidance">
-        <strong>Input Guidelines</strong><br>
-        Allowed values: -1, 0 and 1<br>
-        Separate each value using a comma.<br>
-        Total required features: 28
-    </div>
-
-    <div class="counter-card">
-        <div class="counter-top">
-            <strong>Feature Input Progress</strong>
-            <span id="counter">0 / 28</span>
-        </div>
-        <div class="progress-track">
-            <div id="progress"></div>
-        </div>
-        <div id="inputStatus">Enter your 28 feature values to begin.</div>
-    </div>
-
-    <textarea
-        id="features"
-        placeholder="Example: 1, -1, 0, 1, ..."
-        oninput="updateCounter()"
-    ></textarea>
-
-    <button class="detect-btn" id="detectBtn" onclick="detectWebsite()">
-        🛡️ Detect Phishing
-    </button>
-
-    <div id="result" aria-live="polite"></div>
-
-    <!-- PREDICTION HISTORY -->
-    <div class="history-card">
-        <div class="history-header">
-            <h2>📊 Prediction History</h2>
-            <button class="clear-btn" onclick="clearHistory()">Clear History</button>
-        </div>
-        <div id="historyList"></div>
-    </div>
-
-    <div class="footer">
-        Machine Learning Based Phishing Detection System
-    </div>
-
-</div>
-
-<script>
-const HISTORY_KEY = "phishingPredictionHistory";
-
-/* DASHBOARD */
-function renderDashboard() {
-    let history = [];
-
-    try {
-        history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    } catch (error) {
-        history = [];
-    }
-
-    if (!Array.isArray(history)) history = [];
-
-    const recentHistory = history.slice(0, 10);
-
-    let phishing = 0;
-    let legitimate = 0;
-    let highRisk = 0;
-
-    recentHistory.forEach(item => {
-        const result = String(
-            typeof item === "string" ? item : item.result || ""
-        ).toLowerCase();
-
-        if (result.includes("phishing")) phishing++;
-        else if (result.includes("legitimate")) legitimate++;
-
-        if (
-            typeof item === "object" &&
-            String(item.risk_level || "").toLowerCase() === "high"
-        ) highRisk++;
-    });
-
-    document.getElementById("totalScans").textContent = recentHistory.length;
-    document.getElementById("phishingCount").textContent = phishing;
-    document.getElementById("legitimateCount").textContent = legitimate;
-    document.getElementById("highRiskCount").textContent = highRisk;
-}
-
-/* FEATURE COUNTER */
-function getInputDetails() {
-    const input = document.getElementById("features").value.trim();
-
-    if (!input) return { count: 0, valid: false, empty: true };
-
-    const tokens = input.split(",").map(x => x.trim());
-
-    return {
-        count: tokens.length,
-        valid: tokens.length === 28 &&
-            tokens.every(x => ["-1", "0", "1"].includes(x)),
-        empty: false
     };
-}
-
-function updateCounter() {
-    const details = getInputDetails();
-    const counter = document.getElementById("counter");
-    const progress = document.getElementById("progress");
-    const status = document.getElementById("inputStatus");
-
-    counter.innerText = `${details.count} / 28`;
-    progress.style.width = Math.min(details.count / 28 * 100, 100) + "%";
-
-    counter.classList.remove("complete");
-    progress.classList.remove("complete");
-    status.className = "";
-
-    if (details.empty) {
-        status.innerText = "Enter your 28 feature values to begin.";
-    } else if (details.count !== 28) {
-        status.innerText =
-            `You have entered ${details.count} values. Exactly 28 are required.`;
-        status.className = "invalid";
-    } else if (!details.valid) {
-        status.innerText = "Invalid input. Use only -1, 0 and 1.";
-        status.className = "invalid";
-    } else {
-        counter.classList.add("complete");
-        progress.classList.add("complete");
-        status.innerText = "✓ All 28 feature values are valid. Ready to predict!";
-        status.className = "valid";
-    }
-}
-
-/* SHOW MESSAGE */
-function showMessage(message, type) {
-    const result = document.getElementById("result");
-    result.replaceChildren();
-
-    const heading = document.createElement("h2");
-    heading.textContent = message;
-
-    result.appendChild(heading);
-    result.className = "show " + type;
-}
-
-/* SAVE HISTORY */
-function savePrediction(data) {
-    try {
-        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-
-        history.unshift({
-            result: data.result,
-            confidence: data.confidence,
-            phishing_probability: data.phishing_probability,
-            risk_level: data.risk_level,
-            url: data.url || "",
-            scan_type: data.scan_type || "Manual 28-feature",
-            date: new Date().toISOString()
-        });
-
-        localStorage.setItem(
-            HISTORY_KEY,
-            JSON.stringify(history.slice(0, 10))
-        );
-
-        renderHistory();
-        renderDashboard();
-
-    } catch (error) {
-        console.warn("Could not save prediction history.", error);
-    }
-}
-
-/* RENDER HISTORY */
-function renderHistory() {
-    const historyList = document.getElementById("historyList");
-    historyList.replaceChildren();
-
-    let history = [];
-
-    try {
-        history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-    } catch (error) {
-        history = [];
-    }
-
-    if (!Array.isArray(history) || history.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty-history";
-        empty.textContent = "No predictions yet. Your results will appear here.";
-        historyList.appendChild(empty);
-        return;
-    }
-
-    history.slice(0, 10).forEach(item => {
-        const row = document.createElement("div");
-        row.className = "history-item";
-
-        const details = document.createElement("div");
-        const label = document.createElement("div");
-        label.className = "history-result";
-
-        const normalized = String(
-            typeof item === "string" ? item : item.result || ""
-        ).toLowerCase();
-
-        if (normalized.includes("phishing")) label.classList.add("phishing");
-        else if (normalized.includes("legitimate")) label.classList.add("legitimate");
-
-        label.textContent =
-            typeof item === "string" ? item : item.result || "Prediction completed";
-
-        details.appendChild(label);
-
-        if (typeof item === "object" && item.url) {
-            const urlLine = document.createElement("div");
-            urlLine.className = "history-date";
-            urlLine.textContent = `URL: ${item.url}`;
-            details.appendChild(urlLine);
-        }
-
-        if (typeof item === "object" && item.scan_type) {
-            const typeLine = document.createElement("div");
-            typeLine.className = "history-date";
-            typeLine.textContent = `Scanner: ${item.scan_type}`;
-            details.appendChild(typeLine);
-        }
-
-        if (typeof item === "object") {
-            const date = document.createElement("div");
-            date.className = "history-date";
-
-            const parsedDate = new Date(item.date);
-            date.textContent = isNaN(parsedDate.getTime())
-                ? "Date unavailable"
-                : parsedDate.toLocaleString();
-
-            details.appendChild(date);
-
-            if (item.confidence !== undefined) {
-                const score = document.createElement("div");
-                score.className = "history-date";
-                score.textContent = `Model confidence: ${item.confidence}%`;
-                details.appendChild(score);
-            }
-        }
-
-        row.appendChild(details);
-        historyList.appendChild(row);
-    });
-}
-
-/* CLEAR HISTORY */
-function clearHistory() {
-    if (!confirm("Are you sure you want to clear prediction history?")) return;
-
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistory();
-    renderDashboard();
-}
-
-/* CREATE METRIC CARD */
-function addMetric(parent, label, value, extraClass = "") {
-    const card = document.createElement("div");
-    card.className = "metric-card";
-
-    const title = document.createElement("div");
-    title.className = "metric-label";
-    title.textContent = label;
-
-    const number = document.createElement("div");
-    number.className = "metric-value " + extraClass;
-    number.textContent = value;
-
-    card.appendChild(title);
-    card.appendChild(number);
-    parent.appendChild(card);
-}
-
-/* DISPLAY MANUAL PREDICTION */
-function displayPrediction(data) {
-    const result = document.getElementById("result");
-    result.replaceChildren();
-
-    const heading = document.createElement("h2");
-    heading.textContent = data.result || "Prediction completed";
-    result.appendChild(heading);
-
-    const metricGrid = document.createElement("div");
-    metricGrid.className = "metric-grid";
-
-    if (data.confidence !== undefined) {
-        addMetric(metricGrid, "Model Confidence", `${data.confidence}%`);
-    }
-
-    if (data.phishing_probability !== undefined) {
-        addMetric(metricGrid, "Phishing Probability", `${data.phishing_probability}%`);
-    }
-
-    if (data.risk_level !== undefined) {
-        const risk = String(data.risk_level).toLowerCase();
-        let riskClass = "";
-
-        if (risk === "high") riskClass = "risk-high";
-        else if (risk === "medium") riskClass = "risk-medium";
-        else if (risk === "low") riskClass = "risk-low";
-
-        addMetric(metricGrid, "Risk Level", data.risk_level, riskClass);
-    }
-
-    result.appendChild(metricGrid);
-
-    if (data.phishing_probability !== undefined) {
-        const section = document.createElement("div");
-        section.className = "probability-section";
-
-        const label = document.createElement("strong");
-        label.textContent = "Phishing Probability";
-
-        const track = document.createElement("div");
-        track.className = "probability-track";
-
-        const bar = document.createElement("div");
-        bar.id = "probabilityBar";
-
-        const probability = Number(data.phishing_probability);
-        bar.style.width = Math.max(0, Math.min(probability, 100)) + "%";
-
-        track.appendChild(bar);
-        section.appendChild(label);
-        section.appendChild(track);
-        result.appendChild(section);
-    }
-
-    const note = document.createElement("p");
-    note.className = "history-date";
-    note.textContent =
-        "Note: Model probability is an estimate, not a guarantee of correctness.";
-    result.appendChild(note);
 
     const box = document.createElement("div");
-    box.className = "recommendations";
+    box.className = "explanation-box";
 
-    const title = document.createElement("h3");
-    title.textContent = "Security Recommendations";
-    box.appendChild(title);
+    const heading = document.createElement("h3");
+    heading.textContent = "🧠 Explain Prediction";
+    box.appendChild(heading);
 
-    const list = document.createElement("ul");
+    const intro = document.createElement("p");
+    intro.textContent =
+        "The following details explain the seven URL indicators extracted before the model prediction.";
+    box.appendChild(intro);
 
-    [
-        "Always verify the website URL before entering personal information.",
-        "Never share passwords or OTPs on suspicious websites.",
-        "Check for HTTPS and a valid security certificate."
-    ].forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = item;
-        list.appendChild(li);
+    Object.entries(features).forEach(([key, value]) => {
+        const info = explanations[key];
+        if (!info) return;
+
+        let description;
+
+        if (value === 1) {
+            description = info.positive;
+        } else if (value === 0) {
+            description = info.neutral ||
+                "This feature has a neutral value.";
+        } else {
+            description = info.negative;
+        }
+
+        const item = document.createElement("div");
+        item.className = "explanation-item";
+
+        const title = document.createElement("strong");
+        title.textContent = info.title + ": ";
+
+        const featureValue = document.createElement("span");
+        featureValue.className = "feature-value";
+        featureValue.textContent = value;
+
+        const paragraph = document.createElement("p");
+        paragraph.textContent = description;
+
+        item.appendChild(title);
+        item.appendChild(featureValue);
+        item.appendChild(paragraph);
+
+        box.appendChild(item);
     });
 
-    box.appendChild(list);
-    result.appendChild(box);
-    result.className = "show success";
+    const disclaimer = document.createElement("p");
+    disclaimer.className = "explanation-disclaimer";
+    disclaimer.textContent =
+        "These descriptions explain the seven URL features extracted by this project. They are not individual model-contribution scores and do not prove that any one feature caused the prediction. The model evaluates the features together.";
+
+    box.appendChild(disclaimer);
+
+    return box;
 }
 
 /* DISPLAY URL PREDICTION */
@@ -1622,6 +885,11 @@ function displayURLPrediction(data) {
 
         featureBox.appendChild(list);
         box.appendChild(featureBox);
+
+        // Add the new explanation section
+        box.appendChild(
+            explainURLFeatures(data.extracted_features)
+        );
     }
 
     box.className = "show info";
