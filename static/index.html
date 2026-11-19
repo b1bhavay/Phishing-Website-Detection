@@ -54,11 +54,28 @@
             cursor: pointer;
         }
 
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+
         #result {
             margin-top: 20px;
             text-align: center;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
+        }
+
+        .error {
+            color: #f87171;
+        }
+
+        .success {
+            color: #4ade80;
+        }
+
+        .info {
+            color: #38bdf8;
         }
     </style>
 </head>
@@ -72,72 +89,114 @@
 
     <h3>Enter 28 Website Features</h3>
 
-    <p>Enter 28 comma-separated values (-1, 0, 1)</p>
+    <p>Enter exactly 28 comma-separated values (-1, 0, 1)</p>
 
     <textarea id="features"
-    placeholder="Example: 1, -1, 0, 1, ..."></textarea>
+        placeholder="Example: 1, -1, 0, 1, ..."></textarea>
 
-    <button onclick="detectWebsite()">
+    <button id="detectBtn" onclick="detectWebsite()">
         Detect Phishing
     </button>
 
-    <div id="result"></div>
+    <div id="result" aria-live="polite"></div>
 
 </div>
 
 <script>
 async function detectWebsite() {
 
-    const input = document.getElementById("features").value;
-
-    const values = input.split(",").map(x => Number(x.trim()));
-
+    const input = document.getElementById("features").value.trim();
     const result = document.getElementById("result");
+    const button = document.getElementById("detectBtn");
 
-    if (values.length !== 28 ||
-        values.some(x => ![-1, 0, 1].includes(x))) {
-        result.innerText =
-            "Please enter exactly 28 values (-1, 0, 1).";
+    result.innerHTML = "";
+    result.className = "";
+
+    // Check empty input
+    if (input === "") {
+        result.innerText = "Error: Please enter the 28 feature values.";
+        result.className = "error";
         return;
     }
 
+    // Split comma-separated values
+    const tokens = input.split(",").map(x => x.trim());
+
+    // Check exactly 28 values
+    if (tokens.length !== 28) {
+        result.innerText =
+            `Error: Exactly 28 values are required. You entered ${tokens.length}.`;
+        result.className = "error";
+        return;
+    }
+
+    // Check empty values
+    if (tokens.some(x => x === "")) {
+        result.innerText = "Error: Empty values are not allowed.";
+        result.className = "error";
+        return;
+    }
+
+    // Check allowed values
+    const invalidValues = tokens.filter(
+        x => !["-1", "0", "1"].includes(x)
+    );
+
+    if (invalidValues.length > 0) {
+        result.innerText =
+            "Error: Only -1, 0, and 1 values are allowed.";
+        result.className = "error";
+        return;
+    }
+
+    // Convert valid values into numbers
+    const values = tokens.map(Number);
+
     result.innerText = "Scanning website...";
+    result.className = "info";
+    button.disabled = true;
 
     try {
+
         const response = await fetch("/predict", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({values: values})
+            body: JSON.stringify({ values: values })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.detail || "Prediction failed");
+            throw new Error(
+                typeof data.detail === "string"
+                    ? data.detail
+                    : "Prediction failed. Please try again."
+            );
         }
 
+        result.className = "success";
+
         result.innerHTML = `
-    <h2>${data.result}</h2>
-    <h3>Security Recommendations</h3>
-    <ul style="text-align:left; color:white;">
-        <li>Always verify the website URL before entering personal information.</li>
-        <li>Never share passwords or OTPs on suspicious websites.</li>
-        <li>Check for HTTPS and a valid security certificate.</li>
-    </ul>
-`;
+            <h2>${data.result}</h2>
+            <h3>Security Recommendations</h3>
+            <ul style="text-align:left; color:white;">
+                <li>Always verify the website URL before entering personal information.</li>
+                <li>Never share passwords or OTPs on suspicious websites.</li>
+                <li>Check for HTTPS and a valid security certificate.</li>
+            </ul>
+        `;
 
     } catch (error) {
-       result.innerHTML = `
-    <h2>${data.result}</h2>
-    <h3>Security Recommendations</h3>
-    <ul style="text-align:left; color:white;">
-        <li>Always verify the website URL before entering personal information.</li>
-        <li>Never share passwords or OTPs on suspicious websites.</li>
-        <li>Check for HTTPS and a valid security certificate.</li>
-    </ul>
-`;
+
+        result.innerText =
+            "Error: " + error.message;
+
+        result.className = "error";
+
+    } finally {
+        button.disabled = false;
     }
 }
 </script>
