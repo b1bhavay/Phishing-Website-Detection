@@ -1,127 +1,96 @@
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, conlist, field_validator
+from urllib.parse import urlparse
+import ipaddress
 import joblib
-import numpy as np
 import pandas as pd
-import os
 import json
+import os
+import re
+import tldextract
 from datetime import datetime, timezone
 
-# Load saved model and preprocessing files
+# ---------------------------------------------------------------------
+# Load the original 28-feature model (kept unchanged)
+# ---------------------------------------------------------------------
 model = joblib.load("model/model.joblib")
 scaler = joblib.load("model/scaler.joblib")
 features = joblib.load("model/features.joblib")
 
+# ---------------------------------------------------------------------
+# Load the separate 7-feature URL-only model
+# ---------------------------------------------------------------------
+url_model = joblib.load("model/url_model.joblib")
+url_scaler = joblib.load("model/url_scaler.joblib")
+url_features = joblib.load("model/url_features.joblib")
+
 app = FastAPI(
     title="Phishing Website Detection API",
-    version="1.1"
+    version="2.0"
 )
 
+extractor = tldextract.TLDExtract(suffix_list_urls=None)
 
-# Input validation
+SHORTENERS = {
+    "bit.ly", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "is.gd",
+    "buff.ly", "rebrand.ly", "cutt.ly", "shorturl.at", "rb.gy", "tiny.cc"
+}
+
+
 class WebsiteFeatures(BaseModel):
     values: conlist(float, min_length=28, max_length=28)
 
     @field_validator("values")
     @classmethod
     def validate_values(cls, values):
-        for value in values:
-            if value not in [-1, 0, 1]:
-                raise ValueError("Each feature must be -1, 0, or 1")
+        if any(value not in [-1, 0, 1] for value in values):
+            raise ValueError("Each feature must be -1, 0, or 1")
         return values
 
 
-# Home page
-@app.get("/")
-def home():
-    return FileResponse("static/index.html")
+class URLScanRequest(BaseModel):
+    url: str
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, value):
+        value = value.strip()
+        if not value:
+            raise ValueError("URL cannot be empty")
+        if len(value) > 2048:
+            raise ValueError("URL must be 2048 characters or fewer")
+        if not re.match(r"^https?://", value, re.IGNORECASE):
+            value = "http://" + value
+        parsed = urlparse(value)
+        if parsed.scheme.lower() not in {"http", "https"}:
+            raise ValueError("Only HTTP and HTTPS URLs are supported")
+        if not parsed.hostname:
+            raise ValueError("Please enter a valid URL with a hostname")
+        if parsed.username or parsed.password:
+            raise ValueError("URLs containing embedded usernames or passwords are not supported")
+        return value
 
 
-# Health check
-@app.get("/health")
-def health_check():
-    return {
-        "status": "healthy",
-        "message": "Phishing Detection API is working properly!"
-    }
+def extract_url_features(url: str) -> dict:
+    """Extract the same seven URL-only feature columns used by url_model.
 
+    These are heuristic mappings of the UCI dataset feature definitions.
+    This function does not fetch or open the submitted website.
+    """
+    parsed = urlparse(url)
+    hostname = (parsed.hostname or "").lower().strip(".")
+    if not hostname:
+        raise ValueError("Could not identify the URL hostname")
 
-# Prediction endpoint
-@app.post("/predict")
-def predict(data: WebsiteFeatures):
+    try:
+        ipaddress.ip_address(hostname)
+        having_ip_address = -1
+    except ValueError:
+        having_ip_address = 1
 
-    # Convert input into DataFrame
-    input_data = pd.DataFrame(
-        [data.values],
-        columns=features
-    )
-
-    # Apply saved scaler
-    scaled_data = scaler.transform(input_data)
-
-    # Predict class
-    prediction = model.predict(scaled_data)[0]
-
-    # Get class probabilities
-    if not hasattr(model, "predict_proba"):
-        return {
-            "prediction": int(prediction),
-            "result": (
-                "Phishing Website"
-                if prediction == -1
-                else "Legitimate Website"
-            ),
-            "message": "Probability calculation is not supported by this model."
-        }
-
-    probabilities = model.predict_proba(scaled_data)[0]
-
-    # Identify phishing class (-1)
-    classes = list(model.classes_)
-    phishing_index = classes.index(-1)
-
-    phishing_probability = float(
-        probabilities[phishing_index] * 100
-    )
-
-    confidence = float(max(probabilities) * 100)
-
-    # Classification result
-    result = (
-        "Phishing Website"
-        if prediction == -1
-        else "Legitimate Website"
-    )
-
-    # Indicative risk level
-    if phishing_probability >= 70:
-        risk_level = "High"
-    elif phishing_probability >= 40:
-        risk_level = "Medium"
-    else:
-        risk_level = "Low"
-
-    # Prediction logging
-    log_entry = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "input_features": data.values,
-        "prediction": int(prediction),
-        "result": result,
-        "confidence": round(confidence, 2),
-        "phishing_probability": round(phishing_probability, 2),
-        "risk_level": risk_level
-    }
-
-    with open("prediction_logs.jsonl", "a") as log_file:
-        log_file.write(json.dumps(log_entry) + "\n")
-
-    # API response
-    return {
-        "prediction": int(prediction),
-        "result": result,
-        "confidence": round(confidence, 2),
-        "phishing_probability": round(phishing_probability, 2),
-        "risk_level": risk_level
-    }
+    length = len(url)
+    if length < 54:
+        url_length = 1
+    elif length <= 75:
+        url_length = 0
