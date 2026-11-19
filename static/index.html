@@ -127,7 +127,6 @@ button {
 }
 
 button:disabled { opacity: .6; cursor: not-allowed; }
-
 .detect-btn { width: 100%; margin-top: 18px; }
 
 #result {
@@ -144,6 +143,57 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 #result.error { border-color: #ef4444; color: #fca5a5; }
 #result.success { border-color: #22c55e; color: #86efac; }
 #result.info { border-color: #38bdf8; color: #7dd3fc; }
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.metric-card {
+    background: #172338;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 17px 10px;
+}
+
+.metric-label {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.metric-value {
+    font-size: 23px;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+.risk-low { color: #4ade80; }
+.risk-medium { color: #facc15; }
+.risk-high { color: #f87171; }
+
+.probability-section {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.probability-track {
+    width: 100%;
+    height: 12px;
+    background: #334155;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#probabilityBar {
+    height: 100%;
+    width: 0%;
+    background: #ef4444;
+    transition: width .4s ease;
+}
 
 .recommendations {
     margin-top: 18px;
@@ -210,6 +260,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
     .container { padding: 22px 16px; }
     h1 { font-size: 26px; }
     textarea { height: 160px; }
+    .metric-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -217,62 +268,61 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 <body>
 <div class="container">
 
-<div class="header">
-    <div class="shield">🛡️</div>
-    <h1>Phishing Website Detection</h1>
-    <p class="subtitle">Machine Learning Based Website Security Scanner</p>
-</div>
-
-<h2 class="section-title">Website Security Analysis</h2>
-
-<p class="description">
-    Enter exactly 28 comma-separated website feature values.
-</p>
-
-<div class="guidance">
-    <strong>Input Guidelines</strong><br>
-    Allowed values: -1, 0 and 1<br>
-    Separate each value using a comma.<br>
-    Total required features: 28
-</div>
-
-<div class="counter-card">
-    <div class="counter-top">
-        <strong>Feature Input Progress</strong>
-        <span id="counter">0 / 28</span>
+    <div class="header">
+        <div class="shield">🛡️</div>
+        <h1>Phishing Website Detection</h1>
+        <p class="subtitle">Machine Learning Based Website Security Scanner</p>
     </div>
-    <div class="progress-track">
-        <div id="progress"></div>
+
+    <h2 class="section-title">Website Security Analysis</h2>
+
+    <p class="description">
+        Enter exactly 28 comma-separated website feature values.
+    </p>
+
+    <div class="guidance">
+        <strong>Input Guidelines</strong><br>
+        Allowed values: -1, 0 and 1<br>
+        Separate each value using a comma.<br>
+        Total required features: 28
     </div>
-    <div id="inputStatus">Enter your 28 feature values to begin.</div>
-</div>
 
-<textarea
-    id="features"
-    placeholder="Example: 1, -1, 0, 1, ..."
-    oninput="updateCounter()"
-></textarea>
-
-<button class="detect-btn" id="detectBtn" onclick="detectWebsite()">
-    🛡️ Detect Phishing
-</button>
-
-<div id="result" aria-live="polite"></div>
-
-<!-- Prediction History -->
-<div class="history-card">
-    <div class="history-header">
-        <h2>📊 Prediction History</h2>
-        <button class="clear-btn" onclick="clearHistory()">
-            Clear History
-        </button>
+    <div class="counter-card">
+        <div class="counter-top">
+            <strong>Feature Input Progress</strong>
+            <span id="counter">0 / 28</span>
+        </div>
+        <div class="progress-track">
+            <div id="progress"></div>
+        </div>
+        <div id="inputStatus">Enter your 28 feature values to begin.</div>
     </div>
-    <div id="historyList"></div>
-</div>
 
-<div class="footer">
-    Machine Learning Based Phishing Detection System
-</div>
+    <textarea
+        id="features"
+        placeholder="Example: 1, -1, 0, 1, ..."
+        oninput="updateCounter()"
+    ></textarea>
+
+    <button class="detect-btn" id="detectBtn" onclick="detectWebsite()">
+        🛡️ Detect Phishing
+    </button>
+
+    <div id="result" aria-live="polite"></div>
+
+    <div class="history-card">
+        <div class="history-header">
+            <h2>📊 Prediction History</h2>
+            <button class="clear-btn" onclick="clearHistory()">
+                Clear History
+            </button>
+        </div>
+        <div id="historyList"></div>
+    </div>
+
+    <div class="footer">
+        Machine Learning Based Phishing Detection System
+    </div>
 
 </div>
 
@@ -340,14 +390,17 @@ function showMessage(message, type) {
     result.className = "show " + type;
 }
 
-function savePrediction(prediction) {
+function savePrediction(data) {
     try {
         const history = JSON.parse(
             localStorage.getItem(HISTORY_KEY) || "[]"
         );
 
         history.unshift({
-            result: prediction,
+            result: data.result,
+            confidence: data.confidence,
+            phishing_probability: data.phishing_probability,
+            risk_level: data.risk_level,
             date: new Date().toISOString()
         });
 
@@ -413,6 +466,14 @@ function renderHistory() {
 
         details.appendChild(label);
         details.appendChild(date);
+
+        if (item.confidence !== undefined) {
+            const score = document.createElement("div");
+            score.className = "history-date";
+            score.textContent = `Model confidence: ${item.confidence}%`;
+            details.appendChild(score);
+        }
+
         row.appendChild(details);
         historyList.appendChild(row);
     });
@@ -425,6 +486,122 @@ function clearHistory() {
 
     localStorage.removeItem(HISTORY_KEY);
     renderHistory();
+}
+
+function addMetric(parent, label, value, extraClass = "") {
+    const card = document.createElement("div");
+    card.className = "metric-card";
+
+    const title = document.createElement("div");
+    title.className = "metric-label";
+    title.textContent = label;
+
+    const number = document.createElement("div");
+    number.className = "metric-value " + extraClass;
+    number.textContent = value;
+
+    card.appendChild(title);
+    card.appendChild(number);
+    parent.appendChild(card);
+}
+
+function displayPrediction(data) {
+    const result = document.getElementById("result");
+    result.replaceChildren();
+
+    const heading = document.createElement("h2");
+    heading.textContent = data.result || "Prediction completed";
+    result.appendChild(heading);
+
+    const metricGrid = document.createElement("div");
+    metricGrid.className = "metric-grid";
+
+    if (data.confidence !== undefined) {
+        addMetric(
+            metricGrid,
+            "Model Confidence",
+            `${data.confidence}%`
+        );
+    }
+
+    if (data.phishing_probability !== undefined) {
+        addMetric(
+            metricGrid,
+            "Phishing Probability",
+            `${data.phishing_probability}%`
+        );
+    }
+
+    if (data.risk_level !== undefined) {
+        const risk = String(data.risk_level).toLowerCase();
+        let riskClass = "";
+
+        if (risk === "high") riskClass = "risk-high";
+        else if (risk === "medium") riskClass = "risk-medium";
+        else if (risk === "low") riskClass = "risk-low";
+
+        addMetric(
+            metricGrid,
+            "Risk Level",
+            data.risk_level,
+            riskClass
+        );
+    }
+
+    result.appendChild(metricGrid);
+
+    if (data.phishing_probability !== undefined) {
+        const section = document.createElement("div");
+        section.className = "probability-section";
+
+        const label = document.createElement("strong");
+        label.textContent = "Phishing Probability";
+
+        const track = document.createElement("div");
+        track.className = "probability-track";
+
+        const bar = document.createElement("div");
+        bar.id = "probabilityBar";
+
+        const probability = Number(data.phishing_probability);
+        bar.style.width =
+            Math.max(0, Math.min(probability, 100)) + "%";
+
+        track.appendChild(bar);
+        section.appendChild(label);
+        section.appendChild(track);
+        result.appendChild(section);
+    }
+
+    const note = document.createElement("p");
+    note.className = "history-date";
+    note.textContent =
+        "Note: Model probability is an estimate, not a guarantee of correctness.";
+    result.appendChild(note);
+
+    const box = document.createElement("div");
+    box.className = "recommendations";
+
+    const title = document.createElement("h3");
+    title.textContent = "Security Recommendations";
+    box.appendChild(title);
+
+    const list = document.createElement("ul");
+
+    [
+        "Always verify the website URL before entering personal information.",
+        "Never share passwords or OTPs on suspicious websites.",
+        "Check for HTTPS and a valid security certificate."
+    ].forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+    });
+
+    box.appendChild(list);
+    result.appendChild(box);
+
+    result.className = "show success";
 }
 
 async function detectWebsite() {
@@ -480,39 +657,12 @@ async function detectWebsite() {
             );
         }
 
-        const prediction = String(data.result || "Prediction completed");
+        if (!data.result) {
+            throw new Error("The API did not return a prediction result.");
+        }
 
-        savePrediction(prediction);
-
-        const result = document.getElementById("result");
-        result.replaceChildren();
-
-        const heading = document.createElement("h2");
-        heading.textContent = prediction;
-        result.appendChild(heading);
-
-        const box = document.createElement("div");
-        box.className = "recommendations";
-
-        const title = document.createElement("h3");
-        title.textContent = "Security Recommendations";
-        box.appendChild(title);
-
-        const list = document.createElement("ul");
-
-        [
-            "Always verify the website URL before entering personal information.",
-            "Never share passwords or OTPs on suspicious websites.",
-            "Check for HTTPS and a valid security certificate."
-        ].forEach(item => {
-            const li = document.createElement("li");
-            li.textContent = item;
-            list.appendChild(li);
-        });
-
-        box.appendChild(list);
-        result.appendChild(box);
-        result.className = "show success";
+        savePrediction(data);
+        displayPrediction(data);
 
     } catch (error) {
         showMessage("Error: " + error.message, "error");
@@ -526,5 +676,6 @@ async function detectWebsite() {
 updateCounter();
 renderHistory();
 </script>
+
 </body>
 </html>
