@@ -7,9 +7,7 @@
     <title>Phishing Website Detection</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -26,27 +24,16 @@
             max-width: 850px;
             margin: 25px auto;
             padding: 38px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid rgba(148,163,184,.2);
             border-radius: 22px;
-            background: rgba(23, 35, 56, 0.94);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            background: rgba(23,35,56,.94);
+            box-shadow: 0 20px 60px rgba(0,0,0,.35);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+        .header { text-align: center; margin-bottom: 35px; }
+        .shield { font-size: 42px; margin-bottom: 10px; }
 
-        .shield {
-            font-size: 42px;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            color: #38bdf8;
-            font-size: 34px;
-            margin: 8px 0;
-        }
+        h1 { color: #38bdf8; font-size: 34px; margin: 8px 0; }
 
         .subtitle {
             color: #cbd5e1;
@@ -54,15 +41,74 @@
             line-height: 1.6;
         }
 
-        .section-title {
-            font-size: 21px;
-            margin-bottom: 10px;
-        }
+        .section-title { font-size: 21px; margin-bottom: 10px; }
 
         .description {
             color: #94a3b8;
             font-size: 14px;
-            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .counter-card {
+            background: #0f1b2e;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 18px 0;
+        }
+
+        .counter-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        #counter {
+            font-size: 20px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        #counter.complete { color: #4ade80; }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            background: #334155;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #progress {
+            width: 0%;
+            height: 100%;
+            background: #0284c7;
+            border-radius: 20px;
+            transition: width .25s ease, background .25s ease;
+        }
+
+        #progress.complete { background: #22c55e; }
+
+        #inputStatus {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        #inputStatus.valid { color: #4ade80; }
+        #inputStatus.invalid { color: #f87171; }
+
+        .guidance {
+            margin: 15px 0;
+            padding: 14px;
+            background: rgba(2,132,199,.10);
+            border: 1px solid rgba(56,189,248,.2);
+            border-radius: 10px;
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.7;
         }
 
         textarea {
@@ -77,12 +123,11 @@
             font-size: 15px;
             font-family: monospace;
             outline: none;
-            transition: 0.2s;
         }
 
         textarea:focus {
             border: 2px solid #38bdf8;
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+            box-shadow: 0 0 0 4px rgba(56,189,248,.15);
         }
 
         button {
@@ -91,21 +136,21 @@
             margin-top: 18px;
             border: none;
             border-radius: 12px;
-            background: linear-gradient(90deg, #0284c7, #2563eb);
+            background: linear-gradient(90deg,#0284c7,#2563eb);
             color: white;
             font-size: 17px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
+            transition: .2s;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(2, 132, 199, 0.3);
+            box-shadow: 0 8px 22px rgba(2,132,199,.3);
         }
 
         button:disabled {
-            opacity: 0.6;
+            opacity: .6;
             cursor: not-allowed;
             transform: none;
         }
@@ -120,29 +165,11 @@
             border: 1px solid #334155;
         }
 
-        #result.show {
-            display: block;
-        }
-
-        #result h2 {
-            margin-top: 0;
-            font-size: 27px;
-        }
-
-        #result.error {
-            border-color: #ef4444;
-            color: #fca5a5;
-        }
-
-        #result.success {
-            border-color: #22c55e;
-            color: #86efac;
-        }
-
-        #result.info {
-            border-color: #38bdf8;
-            color: #7dd3fc;
-        }
+        #result.show { display: block; }
+        #result h2 { margin-top: 0; font-size: 25px; }
+        #result.error { border-color: #ef4444; color: #fca5a5; }
+        #result.success { border-color: #22c55e; color: #86efac; }
+        #result.info { border-color: #38bdf8; color: #7dd3fc; }
 
         .recommendations {
             margin-top: 18px;
@@ -158,10 +185,7 @@
             text-align: center;
         }
 
-        .recommendations li {
-            margin: 10px 0;
-            line-height: 1.5;
-        }
+        .recommendations li { margin: 10px 0; line-height: 1.5; }
 
         .footer {
             margin-top: 30px;
@@ -170,29 +194,17 @@
             font-size: 12px;
         }
 
-        @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-
-            .container {
-                padding: 22px 16px;
-                margin: 12px auto;
-            }
-
-            h1 {
-                font-size: 26px;
-            }
-
-            textarea {
-                height: 160px;
-            }
+        @media(max-width:600px) {
+            body { padding: 12px; }
+            .container { padding: 22px 16px; margin: 12px auto; }
+            h1 { font-size: 26px; }
+            textarea { height: 160px; }
+            .counter-top { align-items: flex-start; }
         }
     </style>
 </head>
 
 <body>
-
 <div class="container">
 
     <div class="header">
@@ -207,12 +219,34 @@
 
     <p class="description">
         Enter exactly 28 comma-separated website feature values.
-        Allowed values: -1, 0 and 1.
     </p>
+
+    <div class="guidance">
+        <strong>Input Guidelines</strong><br>
+        Allowed values: -1, 0 and 1<br>
+        Separate each value using a comma.<br>
+        Total required features: 28
+    </div>
+
+    <div class="counter-card">
+        <div class="counter-top">
+            <strong>Feature Input Progress</strong>
+            <span id="counter">0 / 28</span>
+        </div>
+
+        <div class="progress-track">
+            <div id="progress"></div>
+        </div>
+
+        <div id="inputStatus">
+            Enter your 28 feature values to begin.
+        </div>
+    </div>
 
     <textarea
         id="features"
         placeholder="Example: 1, -1, 0, 1, ..."
+        oninput="updateCounter()"
     ></textarea>
 
     <button id="detectBtn" onclick="detectWebsite()">
@@ -228,6 +262,59 @@
 </div>
 
 <script>
+function getInputDetails() {
+    const input = document.getElementById("features").value.trim();
+
+    if (input === "") {
+        return { count: 0, valid: false, empty: true };
+    }
+
+    const tokens = input.split(",").map(x => x.trim());
+
+    const valid = tokens.length === 28 &&
+        tokens.every(x => ["-1", "0", "1"].includes(x));
+
+    return {
+        count: tokens.length,
+        valid: valid,
+        empty: false
+    };
+}
+
+function updateCounter() {
+    const details = getInputDetails();
+
+    const counter = document.getElementById("counter");
+    const progress = document.getElementById("progress");
+    const status = document.getElementById("inputStatus");
+
+    counter.innerText = `${details.count} / 28`;
+
+    const percentage = Math.min((details.count / 28) * 100, 100);
+    progress.style.width = percentage + "%";
+
+    counter.classList.remove("complete");
+    progress.classList.remove("complete");
+    status.className = "";
+
+    if (details.empty) {
+        status.innerText = "Enter your 28 feature values to begin.";
+    } else if (details.count !== 28) {
+        status.innerText =
+            `You have entered ${details.count} values. Exactly 28 are required.`;
+        status.className = "invalid";
+    } else if (!details.valid) {
+        status.innerText =
+            "Invalid input. Use only -1, 0 and 1.";
+        status.className = "invalid";
+    } else {
+        counter.classList.add("complete");
+        progress.classList.add("complete");
+        status.innerText = "✓ All 28 feature values are valid. Ready to predict!";
+        status.className = "valid";
+    }
+}
+
 async function detectWebsite() {
 
     const input = document.getElementById("features").value.trim();
@@ -235,22 +322,15 @@ async function detectWebsite() {
     const button = document.getElementById("detectBtn");
 
     result.innerHTML = "";
-    result.className = "";
-    result.style.display = "block";
+    result.className = "show";
 
-    // Empty input validation
     if (input === "") {
-        showMessage(
-            "Error: Please enter the 28 feature values.",
-            "error"
-        );
+        showMessage("Error: Please enter the 28 feature values.", "error");
         return;
     }
 
-    // Split comma-separated values
     const tokens = input.split(",").map(x => x.trim());
 
-    // Check exactly 28 values
     if (tokens.length !== 28) {
         showMessage(
             `Please enter exactly 28 values. You entered ${tokens.length}.`,
@@ -259,21 +339,13 @@ async function detectWebsite() {
         return;
     }
 
-    // Check empty values
     if (tokens.some(x => x === "")) {
-        showMessage(
-            "Error: Empty values are not allowed.",
-            "error"
-        );
+        showMessage("Error: Empty values are not allowed.", "error");
         return;
     }
 
-    // Check allowed values
     if (tokens.some(x => !["-1", "0", "1"].includes(x))) {
-        showMessage(
-            "Error: Only -1, 0 and 1 values are allowed.",
-            "error"
-        );
+        showMessage("Error: Only -1, 0 and 1 values are allowed.", "error");
         return;
     }
 
@@ -284,12 +356,9 @@ async function detectWebsite() {
     showMessage("Analyzing website features...", "info");
 
     try {
-
         const response = await fetch("/predict", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ values: values })
         });
 
@@ -309,12 +378,12 @@ async function detectWebsite() {
         heading.textContent = data.result || "Prediction completed";
         result.appendChild(heading);
 
-        const recommendationBox = document.createElement("div");
-        recommendationBox.className = "recommendations";
+        const box = document.createElement("div");
+        box.className = "recommendations";
 
-        const recommendationTitle = document.createElement("h3");
-        recommendationTitle.textContent = "Security Recommendations";
-        recommendationBox.appendChild(recommendationTitle);
+        const title = document.createElement("h3");
+        title.textContent = "Security Recommendations";
+        box.appendChild(title);
 
         const list = document.createElement("ul");
 
@@ -328,30 +397,21 @@ async function detectWebsite() {
             list.appendChild(li);
         });
 
-        recommendationBox.appendChild(list);
-        result.appendChild(recommendationBox);
-
+        box.appendChild(list);
+        result.appendChild(box);
         result.className = "show success";
 
     } catch (error) {
-
-        showMessage(
-            "Error: " + error.message,
-            "error"
-        );
+        showMessage("Error: " + error.message, "error");
 
     } finally {
-
         button.disabled = false;
         button.innerText = "🛡️ Detect Phishing";
-
     }
 }
 
 function showMessage(message, type) {
-
     const result = document.getElementById("result");
-
     result.innerHTML = "";
 
     const heading = document.createElement("h2");
@@ -360,6 +420,8 @@ function showMessage(message, type) {
     result.appendChild(heading);
     result.className = "show " + type;
 }
+
+updateCounter();
 </script>
 
 </body>
